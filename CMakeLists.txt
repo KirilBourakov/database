@@ -3,4 +3,8 @@ project(database C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(database main.c)
+add_executable(database
+    main.c
+    table.h
+    table.c
+)
