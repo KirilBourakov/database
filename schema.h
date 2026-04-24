@@ -19,7 +19,7 @@ typedef struct {
     size_t columns_count;
 } DbSchema;
 
-DbSchema* alloc_schema(size_t columns_count);
+DbSchema* alloc_schema(ColumnDef* columns, size_t count);
 size_t schema_size_bytes(const DbSchema* schema);
 
 #endif //DATABASE_SCHEMA_H

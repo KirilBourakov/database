@@ -7,18 +7,12 @@ int main(void) {
     const char* filename = "out.data";
     FILE *fp = fopen(filename, "ab+");
 
-    const DbSchema* schema = alloc_schema(2);
+    ColumnDef defs[] = {{TYPE_INT, sizeof(int64_t)}, {TYPE_FIXED_STRING, sizeof(char) * 4}};
 
-    schema->columns[0].type = TYPE_INT;
-    schema->columns[0].size = sizeof(int64_t);
-
-    schema->columns[1].type = TYPE_FIXED_STRING;
-    schema->columns[1].size = sizeof(char) * 4;
-
+    const DbSchema* schema = alloc_schema(defs,2);
 
     DbRow *row = malloc_row(schema);
     row->values[0].value.i = 32;
-
     strcpy(row->values[1].value.fixed_string, "2!");
 
     write_row(schema, fp, row);
