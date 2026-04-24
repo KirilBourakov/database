@@ -12,7 +12,6 @@
 typedef struct {
     DataType type;
     int size;
-    bool nullable;
 } ColumnDef;
 
 typedef struct {

@@ -11,5 +11,5 @@ add_executable(database
     schema.c
     schema.h
 
-    dataType.h
+    data_type.h
 )

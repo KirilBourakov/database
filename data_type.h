@@ -6,7 +6,6 @@
 #define DATABASE_DATATYPE_H
 
 typedef enum {
-    TYPE_NULL,
     TYPE_INT,
     TYPE_FLOAT,
     TYPE_FIXED_STRING,
