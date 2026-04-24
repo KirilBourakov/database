@@ -8,26 +8,33 @@
 
 DbSchema* alloc_schema(ColumnDef* columns, size_t count) {
     DbSchema* schema = (DbSchema*) malloc(sizeof(DbSchema));
+    if (!schema) return NULL;
     schema->columns_count = count;
+    schema->bitmap_bytes = schema->columns_count/8 + (schema->columns_count % 8 != 0);
+    schema->offset_bytes = 0;
+    schema->fixed_bytes = 0;
+
     schema->columns = malloc(sizeof(ColumnDef) * count);
+    if (!schema->columns) {
+        free(schema);
+        return NULL;
+    }
     for (size_t i = 0; i < count; i++) {
         schema->columns[i] = columns[i];
+        if (is_variable_size(columns[i].type)) {
+            schema->offset_bytes += 2;
+        }
+        else {
+            schema->fixed_bytes += schema->columns[i].bytes;
+        }
     }
     return schema;
 }
 
-size_t schema_size_bytes(const DbSchema* schema) {
-    size_t size = 0;
-    for (size_t i = 0; i < schema->columns_count; i++) {
-        size += schema->columns[i].size;
-    }
-    return size;
-}
-
 ColumnDef make_column_impl(const DataType type, const int explicit_size) {
     const int default_size = get_default_size(type);
-    if (default_size > 0) {
-        return (ColumnDef){ .type = type, .size = default_size };
+    if (default_size != 0) {
+        return (ColumnDef){ .type = type, .bytes = default_size };
     }
-    return (ColumnDef){ .type = type, .size = explicit_size };
+    return (ColumnDef){ .type = type, .bytes = explicit_size };
 }

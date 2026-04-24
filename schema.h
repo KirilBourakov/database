@@ -12,7 +12,7 @@
 
 typedef struct {
     DataType type;
-    int size;
+    int bytes;
 } ColumnDef;
 ColumnDef make_column_impl(DataType type, int explicit_size);
 #define MAKE_COL_1(type) make_column_impl(type, 0)
@@ -23,9 +23,12 @@ ColumnDef make_column_impl(DataType type, int explicit_size);
 typedef struct {
     ColumnDef* columns;
     size_t columns_count;
+
+    size_t bitmap_bytes;
+    size_t offset_bytes;
+    size_t fixed_bytes;
 } DbSchema;
 
 DbSchema* alloc_schema(ColumnDef* columns, size_t count);
-size_t schema_size_bytes(const DbSchema* schema);
 
 #endif //DATABASE_SCHEMA_H

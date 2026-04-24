@@ -16,6 +16,10 @@ typedef struct {
         int64_t i;
         double f;
         char* fixed_string;
+        struct {
+            char* data;
+            size_t bytes;
+        } var;
     } value;
 } DbValue;
 
@@ -23,7 +27,7 @@ typedef struct {
     DbValue* values;
 } DbRow;
 
-size_t read_next_row(const DbSchema *schema, FILE *fp, const DbRow *buffer);
+size_t read_next_row(const DbSchema *schema, FILE *fp, DbRow *buffer);
 DbRow* malloc_row(const DbSchema* schema);
 void dealloc_row(const DbSchema* schema, DbRow* buffer);
 void write_row(const DbSchema* schema, FILE *fp, const DbRow* row);
