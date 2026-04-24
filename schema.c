@@ -23,3 +23,11 @@ size_t schema_size_bytes(const DbSchema* schema) {
     }
     return size;
 }
+
+ColumnDef make_column_impl(const DataType type, const int explicit_size) {
+    const int default_size = get_default_size(type);
+    if (default_size > 0) {
+        return (ColumnDef){ .type = type, .size = default_size };
+    }
+    return (ColumnDef){ .type = type, .size = explicit_size };
+}

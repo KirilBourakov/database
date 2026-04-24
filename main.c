@@ -7,7 +7,7 @@ int main(void) {
     const char* filename = "out.data";
     FILE *fp = fopen(filename, "ab+");
 
-    ColumnDef defs[] = {{TYPE_INT, sizeof(int64_t)}, {TYPE_FIXED_STRING, sizeof(char) * 4}};
+    ColumnDef defs[] = {make_column(TYPE_INT64), make_column(TYPE_FIXED_STRING, sizeof(char) * 4)};
 
     const DbSchema* schema = alloc_schema(defs,2);
 

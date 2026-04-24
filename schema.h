@@ -9,10 +9,16 @@
 
 #include "data_type.h"
 
+
 typedef struct {
     DataType type;
     int size;
 } ColumnDef;
+ColumnDef make_column_impl(DataType type, int explicit_size);
+#define MAKE_COL_1(type) make_column_impl(type, 0)
+#define MAKE_COL_2(type, size) make_column_impl(type, size)
+#define GET_3RD_ARG(arg1, arg2, arg3, ...) arg3
+#define make_column(...) GET_3RD_ARG(__VA_ARGS__, MAKE_COL_2, MAKE_COL_1)(__VA_ARGS__)
 
 typedef struct {
     ColumnDef* columns;

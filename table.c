@@ -34,10 +34,10 @@ void unpack_row(const DbSchema* schema, const DbRow* row, const void* buffer) {
     const char* ptr = (const char*)buffer;
     for (size_t i = 0; i < schema->columns_count; i++) {
         switch (schema->columns[i].type) {
-            case (TYPE_INT):
+            case (TYPE_INT64):
                 memcpy(&row->values[i].value.i, ptr + consumed, schema->columns[i].size);
                 break;
-            case (TYPE_FLOAT):
+            case (TYPE_DOUBLE):
                 memcpy(&row->values[i].value.f, ptr + consumed, schema->columns[i].size);
                 break;
             case (TYPE_FIXED_STRING):
@@ -70,11 +70,11 @@ void pack_row(const DbSchema* schema, const DbRow* row, void* buffer) {
     char* ptr = (char*)buffer;
     for (size_t i = 0; i < schema->columns_count; i++) {
         switch (schema->columns[i].type) {
-            case (TYPE_INT):
+            case (TYPE_INT64):
                 memcpy(ptr + consumed, &row->values[i].value.i, schema->columns[i].size);
                 break;
 
-            case (TYPE_FLOAT):
+            case (TYPE_DOUBLE):
                 memcpy(ptr + consumed, &row->values[i].value.f, schema->columns[i].size);
                 break;
 
