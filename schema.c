@@ -6,6 +6,8 @@
 
 #include <stdlib.h>
 
+#include "utils.h"
+
 DbSchema* alloc_schema(ColumnDef* columns, size_t count) {
     DbSchema* schema = (DbSchema*) malloc(sizeof(DbSchema));
     if (!schema) return NULL;
@@ -33,8 +35,14 @@ DbSchema* alloc_schema(ColumnDef* columns, size_t count) {
 
 ColumnDef make_column_impl(const DataType type, const int explicit_size) {
     const int default_size = get_default_size(type);
-    if (default_size != 0) {
+    if (default_size > 0 && explicit_size == 0) {
         return (ColumnDef){ .type = type, .bytes = default_size };
+    }
+    if (default_size > 0) {
+        DIE("Explicit size is set in default size column type");
+    }
+    if (explicit_size <= 0) {
+        DIE("Explicit size is less then or equal to 0 in dynamic column");
     }
     return (ColumnDef){ .type = type, .bytes = explicit_size };
 }

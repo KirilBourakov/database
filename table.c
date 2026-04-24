@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
+
 DbRow* malloc_row(const DbSchema* schema) {
     DbRow* buffer = malloc(sizeof(DbRow));
     buffer->values = malloc(sizeof(DbValue) * schema->columns_count);
@@ -87,8 +89,7 @@ size_t read_next_row(const DbSchema *schema, FILE *fp, DbRow *buffer) {
 
     char* tmp = malloc(fixed_part_size);
     if (!tmp) {
-        perror("read_next_row failed to alloc buffer.");
-        return 0;
+        DIE("read_next_row failed to alloc buffer.");
     }
 
     if (fread(tmp, 1, fixed_part_size, fp) != fixed_part_size) {
@@ -178,6 +179,6 @@ void write_row(const DbSchema* schema, FILE *fp, const DbRow* row) {
         free(buffer);
     }
     else {
-        perror("write_row failed to alloc buffer.");
+        DIE("write_row failed to alloc buffer.");
     }
 }

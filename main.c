@@ -9,7 +9,7 @@ int main(void) {
     FILE *fp = fopen(filename, "ab+");
 
     ColumnDef defs[] = {
-        make_column(TYPE_INT64), 
+        make_column(TYPE_INT64),
         make_column(TYPE_FIXED_STRING, sizeof(char) * 4),
         make_column(TYPE_VAR_STRING, 100)
     };
@@ -20,7 +20,7 @@ int main(void) {
     row->values[0].value.i = 32;
     strcpy(row->values[1].value.fixed_string, "2!");
     
-    char* var_val = "";
+    char* var_val = "asd";
     row->values[2].value.var.bytes = strlen(var_val) + 1;
     row->values[2].value.var.data = malloc(row->values[2].value.var.bytes);
     memcpy(row->values[2].value.var.data, var_val, row->values[2].value.var.bytes);
