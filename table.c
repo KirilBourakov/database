@@ -7,14 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-size_t read_next_row(const DbSchema *schema, FILE *fp, DbRow *buffer) {
-    const size_t expected_buffer_size = sizeof(DbValue) * schema->columns;
-    return fread(buffer->values, 1, expected_buffer_size, fp);
-}
-
 DbRow* malloc_row(const DbSchema* schema) {
     DbRow* buffer = malloc(sizeof(DbRow));
-    buffer->values = malloc(sizeof(DbValue) * schema->columns);
+    buffer->values = malloc(schema_size_bytes(schema));
     return buffer;
 }
 void dealloc_row(DbRow* buffer) {
@@ -22,7 +17,12 @@ void dealloc_row(DbRow* buffer) {
     free(buffer);
 }
 
+size_t read_next_row(const DbSchema *schema, FILE *fp, DbRow *buffer) {
+    const size_t expected_buffer_size = schema_size_bytes(schema);
+    return fread(buffer->values, 1, expected_buffer_size, fp);
+}
+
 void write_row(const DbSchema* schema, FILE *fp, const DbRow* row) {
-    const size_t expected_buffer_size = sizeof(DbValue) * schema->columns;
+    const size_t expected_buffer_size = schema_size_bytes(schema);
     fwrite(row->values, 1, expected_buffer_size, fp);
 }

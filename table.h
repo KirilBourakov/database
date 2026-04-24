@@ -7,28 +7,23 @@
 #include <stdint.h>
 #include <stdio.h>
 
-typedef enum {
-    TYPE_NULL,
-    TYPE_INT,
-    TYPE_FLOAT,
-    TYPE_TEXT,
-} DataType;
+#include "data_type.h"
+#include "schema.h"
 
 typedef struct {
     DataType type;
     union {
         int64_t i;
         double f;
+        struct {
+            char* value;
+        } fixed_string;
     } value;
 } DbValue;
 
 typedef struct {
     DbValue* values;
 } DbRow;
-
-typedef struct {
-    uint32_t columns;
-} DbSchema;
 
 size_t read_next_row(const DbSchema *schema, FILE *fp, DbRow *buffer);
 DbRow* malloc_row(const DbSchema* schema);

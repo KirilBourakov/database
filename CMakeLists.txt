@@ -5,6 +5,11 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(database
     main.c
+
     table.h
     table.c
+    schema.c
+    schema.h
+
+    dataType.h
 )
