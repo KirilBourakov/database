@@ -4,7 +4,6 @@
 
 #include "schema.h"
 
-#include <stddef.h>
 #include <stdlib.h>
 
 DbSchema* alloc_schema(const size_t columns_count) {
