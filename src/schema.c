@@ -33,6 +33,13 @@ DbSchema* alloc_schema(ColumnDef* columns, size_t count) {
     return schema;
 }
 
+void dealloc_schema(DbSchema* schema) {
+    if (schema) {
+        if (schema->columns) free(schema->columns);
+        free(schema);
+    }
+}
+
 ColumnDef make_column_impl(const DataType type, const int explicit_size) {
     const int default_size = get_default_size(type);
     if (default_size > 0 && explicit_size == 0) {

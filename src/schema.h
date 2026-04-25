@@ -30,5 +30,6 @@ typedef struct {
 } DbSchema;
 
 DbSchema* alloc_schema(ColumnDef* columns, size_t count);
+void dealloc_schema(DbSchema* schema);
 
 #endif //DATABASE_SCHEMA_H
