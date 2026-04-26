@@ -1,0 +1,30 @@
+//
+// Created by Kiril on 4/26/2026.
+//
+
+#ifndef DATABASE_PAGE_H
+#define DATABASE_PAGE_H
+
+#define PAGE_SIZE 8192
+#define PAGE_SLOT_SIZE sizeof(uint16_t)
+
+#include <stdint.h>
+
+typedef struct {
+    uint32_t page_id;
+
+    uint16_t slot_array_end;
+    uint16_t row_data_start;
+    uint16_t num_slots;
+} PageHeader;
+
+typedef struct {
+    char data[PAGE_SIZE];
+} DbPage;
+
+DbPage* create_page(int id);
+void destroy_page(DbPage** page_ptr);
+
+int page_insert(DbPage* page, const void* packed_row, uint16_t row_size);
+
+#endif //DATABASE_PAGE_H

@@ -9,6 +9,8 @@ include_directories(src lib/unity lib/cmock)
 add_library(db_lib STATIC
     src/table.c
     src/schema.c
+        src/page.c
+        src/page.h
 )
 
 # Main executable
