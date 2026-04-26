@@ -28,8 +28,9 @@ enable_testing()
 
 add_executable(unit_tests
     tests/all_tests.c
-    tests/test_table.c
+    tests/test_row.c
     tests/test_page.c
+    tests/test_cursor.c
 )
 target_link_libraries(unit_tests db_lib unity)
 add_test(NAME AllTests COMMAND unit_tests)
