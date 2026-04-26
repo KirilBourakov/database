@@ -14,12 +14,10 @@ TableCursor start_table_scan(FILE* file) {
     cursor.file = file;
     cursor.current_slot = 0;
     cursor.end_of_table = 0;
+    cursor.current_page = create_page(0);
 
     rewind(file);
-    if (fread(cursor.current_page.data, 1, PAGE_SIZE, file) != PAGE_SIZE) {
-        DbPage* p = create_page(0);
-        cursor.current_page = *p;
-        free(p);
+    if (fread(cursor.current_page->data, 1, PAGE_SIZE, file) != PAGE_SIZE) {
         cursor.end_of_table = 1;
     }
 
@@ -31,21 +29,21 @@ int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_ro
         return 0;
     }
 
-    PageHeader* header = (PageHeader*)cursor->current_page.data;
+    PageHeader* header = (PageHeader*)cursor->current_page->data;
     while (1) {
         if (cursor->current_slot >= header->num_slots) {
             // Read the next physical page in the file
-            if (fread(cursor->current_page.data, 1, PAGE_SIZE, cursor->file) != PAGE_SIZE) {
+            if (fread(cursor->current_page->data, 1, PAGE_SIZE, cursor->file) != PAGE_SIZE) {
                 cursor->end_of_table = 1;
                 return 0;
             }
 
             cursor->current_slot = 0;
-            header = (PageHeader*)cursor->current_page.data;
+            header = (PageHeader*)cursor->current_page->data;
             continue;
         }
 
-        const void* raw_row_memory = slot_data(&cursor->current_page, cursor->current_slot);
+        const void* raw_row_memory = slot_data(cursor->current_page, cursor->current_slot);
         cursor->current_slot++;
 
         // If raw_row_memory is NULL, it means this specific slot was deleted.
@@ -57,7 +55,7 @@ int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_ro
 }
 
 // temp method
-int insert(TableCursor* cursor, const DbSchema* schema, const DbRow* row) {
+int insert(const TableCursor* cursor, const DbSchema* schema, const DbRow* row) {
     size_t expected_size = schema->bitmap_bytes + schema->offset_bytes + schema->fixed_bytes;
     for (size_t i = 0; i < schema->columns_count; i++) {
         if (is_variable_size(schema->columns[i].type)) {
@@ -68,7 +66,7 @@ int insert(TableCursor* cursor, const DbSchema* schema, const DbRow* row) {
     void* buffer = malloc(expected_size);
     if (buffer != NULL) {
         pack_row(schema, row, buffer);
-        const int code = page_insert(&cursor->current_page, buffer, expected_size);
+        const int code = page_insert(cursor->current_page, buffer, expected_size);
 
         free(buffer);
         return code;

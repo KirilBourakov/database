@@ -40,7 +40,7 @@ int main(void) {
 
     insert(&cursor, schema, current_row);
 
-    writeback(&cursor.current_page, fp);
+    writeback(cursor.current_page, fp);
     dealloc_row(schema, current_row);
 
     // Scan from the beginning to print everything
