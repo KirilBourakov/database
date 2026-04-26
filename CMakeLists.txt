@@ -9,8 +9,8 @@ include_directories(src lib/unity lib/cmock)
 add_library(db_lib STATIC
     src/table.c
     src/schema.c
-        src/page.c
-        src/page.h
+    src/page.c
+    src/page.h
 )
 
 # Main executable
@@ -22,6 +22,11 @@ add_library(unity STATIC lib/unity/unity.c)
 
 # Testing
 enable_testing()
-add_executable(test_table tests/test_table.c)
-target_link_libraries(test_table db_lib unity)
-add_test(NAME TableTests COMMAND test_table)
+
+add_executable(unit_tests 
+    tests/all_tests.c 
+    tests/test_table.c 
+    tests/test_page.c
+)
+target_link_libraries(unit_tests db_lib unity)
+add_test(NAME AllTests COMMAND unit_tests)

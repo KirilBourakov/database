@@ -4,14 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void setUp(void) {
-    remove("test.data");
-}
-
-void tearDown(void) {
-    remove("test.data");
-}
-
 void test_SingleRowWriteRead(void) {
     ColumnDef defs[] = {
         make_column(TYPE_INT64),
@@ -91,11 +83,4 @@ void test_MultipleRowsAppend(void) {
     dealloc_row(schema, rowOut);
     fclose(fp);
     dealloc_schema(schema);
-}
-
-int main(void) {
-    UNITY_BEGIN();
-    RUN_TEST(test_SingleRowWriteRead);
-    RUN_TEST(test_MultipleRowsAppend);
-    return UNITY_END();
 }
