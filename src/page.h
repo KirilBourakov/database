@@ -25,6 +25,7 @@ typedef struct {
 DbPage* create_page(int id);
 void destroy_page(DbPage** page_ptr);
 
+void* slot_data(DbPage* page, uint16_t slot);
 int page_insert(DbPage* page, const void* packed_row, uint16_t row_size);
 
 #endif //DATABASE_PAGE_H

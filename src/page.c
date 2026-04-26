@@ -27,6 +27,18 @@ void destroy_page(DbPage** page_ptr) {
     }
 }
 
+void* slot_data(DbPage* page, const uint16_t slot) {
+    const size_t offset = sizeof(PageHeader) + (slot * PAGE_SLOT_SIZE);
+
+    uint16_t rel_loc;
+    memcpy(&rel_loc, page->data + offset, sizeof(uint16_t));
+    if (rel_loc == 0) {
+        return NULL;
+    }
+
+    return page->data + rel_loc;
+}
+
 int page_insert(DbPage* page, const void* packed_row, const uint16_t row_size) {
     PageHeader* header = (PageHeader*)page->data;
 

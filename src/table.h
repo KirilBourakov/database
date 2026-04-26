@@ -27,9 +27,9 @@ typedef struct {
     DbValue* values;
 } DbRow;
 
-size_t read_next_row(const DbSchema *schema, FILE *fp, DbRow *buffer);
 DbRow* malloc_row(const DbSchema* schema);
 void dealloc_row(const DbSchema* schema, DbRow* buffer);
-void write_row(const DbSchema* schema, FILE *fp, const DbRow* row);
+void unpack_row(const DbSchema* schema, const void* raw_row_memory, const DbRow* out_row);
+void pack_row(const DbSchema* schema, const DbRow* row, void* buffer);
 
 #endif //DATABASE_TABLE_H
