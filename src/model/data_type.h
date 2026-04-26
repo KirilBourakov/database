@@ -6,7 +6,6 @@
 #define DATABASE_DATATYPE_H
 
 #include <stdbool.h>
-#include <stddef.h>
 
 #define DATATYPES(X) \
     X(INT64,  8) \

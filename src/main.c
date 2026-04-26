@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "cursor.h"
-#include "table.h"
+#include "access/cursor.h"
+#include "model/row.h"
 
 int main(void) {
     const char* filename = "out.data";

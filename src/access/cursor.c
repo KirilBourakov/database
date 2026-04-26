@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "utils.h"
+#include "../errors.h"
 
 
 TableCursor start_table_scan(FILE* file) {
@@ -56,12 +56,7 @@ int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_ro
 
 // temp method
 int insert(const TableCursor* cursor, const DbSchema* schema, const DbRow* row) {
-    size_t expected_size = schema->bitmap_bytes + schema->offset_bytes + schema->fixed_bytes;
-    for (size_t i = 0; i < schema->columns_count; i++) {
-        if (is_variable_size(schema->columns[i].type)) {
-            expected_size += row->values[i].value.var.bytes;
-        }
-    }
+    size_t expected_size = row_packed_size(schema, row);
 
     void* buffer = malloc(expected_size);
     if (buffer != NULL) {
@@ -72,27 +67,4 @@ int insert(const TableCursor* cursor, const DbSchema* schema, const DbRow* row) 
         return code;
     }
     DIE("write_row failed to alloc buffer.");
-}
-
-int writeback(DbPage* page, FILE* file) {
-    PageHeader* header = (PageHeader*)page->data;
-    uint32_t page_id = header->page_id;
-    long file_offset = (long)page_id * PAGE_SIZE;
-
-    if (fseek(file, file_offset, SEEK_SET) != 0) {
-        perror("Failed to seek to page location");
-        return 0;
-    }
-
-    if (fwrite(page->data, 1, PAGE_SIZE, file) != PAGE_SIZE) {
-        perror("Failed to write page to disk");
-        return 0;
-    }
-
-    if (fflush(file) != 0) {
-        perror("Failed to flush to disk");
-        return 0;
-    }
-
-    return 1;
 }

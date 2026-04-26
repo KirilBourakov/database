@@ -2,14 +2,15 @@
 // Created by Kiril on 4/13/2026.
 //
 
-#include "table.h"
+
+#include "row.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "page.h"
-#include "utils.h"
+#include "../storage/page.h"
+#include "../errors.h"
 
 DbRow* malloc_row(const DbSchema* schema) {
     DbRow* buffer = malloc(sizeof(DbRow));
@@ -127,4 +128,14 @@ void pack_row(const DbSchema* schema, const DbRow* row, void* buffer) {
             consumed += row->values[i].value.var.bytes;
         }
     }
+}
+
+size_t row_packed_size(const DbSchema* schema, const DbRow* row) {
+    size_t size = schema->bitmap_bytes + schema->offset_bytes + schema->fixed_bytes;
+    for (size_t i = 0; i < schema->columns_count; i++) {
+        if (is_variable_size(schema->columns[i].type)) {
+            size += row->values[i].value.var.bytes;
+        }
+    }
+    return size;
 }

@@ -1,5 +1,5 @@
 #include "../lib/unity/unity.h"
-#include "../src/table.h"
+#include "../src/model/row.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -36,8 +36,8 @@ void test_pack_unpack_row(void) {
     rowIn->values[2].value.var.data = malloc(rowIn->values[2].value.var.bytes);
     memcpy(rowIn->values[2].value.var.data, var_data, rowIn->values[2].value.var.bytes);
 
-    // Calculate buffer size: bitmap + offsets + fixed + var
-    size_t buffer_size = schema->bitmap_bytes + schema->offset_bytes + schema->fixed_bytes + rowIn->values[2].value.var.bytes;
+    // Calculate buffer size
+    size_t buffer_size = row_packed_size(schema, rowIn);
     void* buffer = malloc(buffer_size);
 
     pack_row(schema, rowIn, buffer);

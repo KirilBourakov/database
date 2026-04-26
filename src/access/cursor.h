@@ -6,8 +6,8 @@
 #define DATABASE_CURSOR_H
 #include <stdio.h>
 
-#include "page.h"
-#include "table.h"
+#include "../storage/page.h"
+#include "../model/row.h"
 
 typedef struct {
     FILE* file;
@@ -19,6 +19,5 @@ typedef struct {
 TableCursor start_table_scan(FILE* file);
 int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_row);
 int insert(const TableCursor* cursor, const DbSchema* schema, const DbRow* row);
-int writeback(DbPage* page, FILE* file);
 
 #endif //DATABASE_CURSOR_H

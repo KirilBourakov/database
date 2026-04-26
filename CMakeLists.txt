@@ -7,10 +7,13 @@ include_directories(src lib/unity lib/cmock)
 
 # Library for core logic
 add_library(db_lib STATIC
-    src/table.c
-    src/schema.c
-    src/page.c
-    src/cursor.c
+        src/model/row.c
+        src/model/schema.c
+
+        src/storage/page.c
+        src/storage/disk.c
+
+        src/access/cursor.c
 )
 
 # Main executable

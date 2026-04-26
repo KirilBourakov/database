@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "utils.h"
-
 DbPage* create_page(const int id) {
     DbPage* page = calloc(1, sizeof(DbPage));
     PageHeader* header = (PageHeader*)page->data;

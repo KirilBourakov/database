@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 
-#include "utils.h"
+#include "../errors.h"
 
 DbSchema* alloc_schema(ColumnDef* columns, size_t count) {
     DbSchema* schema = (DbSchema*) malloc(sizeof(DbSchema));
