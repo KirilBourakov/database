@@ -8,20 +8,34 @@
 
 #include "../errors.h"
 
+struct TableCursor {
+    FILE* file;
+    DbPage* current_page;
+    uint16_t current_slot;
+    int end_of_table;
+};
 
-TableCursor start_table_scan(FILE* file) {
-    TableCursor cursor;
-    cursor.file = file;
-    cursor.current_slot = 0;
-    cursor.end_of_table = 0;
-    cursor.current_page = create_page(0);
+TableCursor* start_table_scan(FILE* file) {
+    TableCursor* cursor = malloc(sizeof(TableCursor));
+    cursor->file = file;
+    cursor->current_slot = 0;
+    cursor->end_of_table = 0;
+    cursor->current_page = create_page(0);
 
     rewind(file);
-    if (fread(cursor.current_page->data, 1, PAGE_SIZE, file) != PAGE_SIZE) {
-        cursor.end_of_table = 1;
+    if (fread(page_get_raw_data(cursor->current_page), 1, PAGE_SIZE, file) != PAGE_SIZE) {
+        cursor->end_of_table = 1;
     }
 
     return cursor;
+}
+
+void stop_table_scan(TableCursor** cursor_ptr) {
+    if (cursor_ptr != NULL && *cursor_ptr != NULL) {
+        destroy_page(&(*cursor_ptr)->current_page);
+        free(*cursor_ptr);
+        *cursor_ptr = NULL;
+    }
 }
 
 int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_row) {
@@ -29,17 +43,17 @@ int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_ro
         return 0;
     }
 
-    PageHeader* header = (PageHeader*)cursor->current_page->data;
+    PageHeader* header = page_get_header(cursor->current_page);
     while (1) {
         if (cursor->current_slot >= header->num_slots) {
             // Read the next physical page in the file
-            if (fread(cursor->current_page->data, 1, PAGE_SIZE, cursor->file) != PAGE_SIZE) {
+            if (fread(page_get_raw_data(cursor->current_page), 1, PAGE_SIZE, cursor->file) != PAGE_SIZE) {
                 cursor->end_of_table = 1;
                 return 0;
             }
 
             cursor->current_slot = 0;
-            header = (PageHeader*)cursor->current_page->data;
+            header = page_get_header(cursor->current_page);
             continue;
         }
 
@@ -67,4 +81,8 @@ int insert(const TableCursor* cursor, const DbSchema* schema, const DbRow* row) 
         return code;
     }
     DIE("write_row failed to alloc buffer.");
+}
+
+DbPage* cursor_get_page(TableCursor* cursor) {
+    return cursor->current_page;
 }

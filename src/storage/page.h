@@ -18,12 +18,13 @@ typedef struct {
     uint16_t num_slots;
 } PageHeader;
 
-typedef struct {
-    char data[PAGE_SIZE];
-} DbPage;
+typedef struct DbPage DbPage;
 
 DbPage* create_page(int id);
 void destroy_page(DbPage** page_ptr);
+
+PageHeader* page_get_header(const DbPage* page);
+void* page_get_raw_data(DbPage* page);
 
 void* slot_data(DbPage* page, uint16_t slot);
 int page_insert(DbPage* page, const void* packed_row, uint16_t row_size);

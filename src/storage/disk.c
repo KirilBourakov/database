@@ -5,7 +5,7 @@
 #include "disk.h"
 
 int writeback(const DbPage* page, FILE* file) {
-    const PageHeader* header = (PageHeader*)page->data;
+    const PageHeader* header = page_get_header(page);
     const uint32_t page_id = header->page_id;
     const long file_offset = (long)page_id * PAGE_SIZE;
 
@@ -14,7 +14,7 @@ int writeback(const DbPage* page, FILE* file) {
         return 0;
     }
 
-    if (fwrite(page->data, 1, PAGE_SIZE, file) != PAGE_SIZE) {
+    if (fwrite(page_get_raw_data((DbPage*)page), 1, PAGE_SIZE, file) != PAGE_SIZE) {
         perror("Failed to write page to disk");
         return 0;
     }

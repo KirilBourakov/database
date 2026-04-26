@@ -9,15 +9,14 @@
 #include "../storage/page.h"
 #include "../model/row.h"
 
-typedef struct {
-    FILE* file;
-    DbPage* current_page;
-    uint16_t current_slot;
-    int end_of_table;
-} TableCursor;
+typedef struct TableCursor TableCursor;
 
-TableCursor start_table_scan(FILE* file);
+TableCursor* start_table_scan(FILE* file);
+void stop_table_scan(TableCursor** cursor_ptr);
+
 int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_row);
 int insert(const TableCursor* cursor, const DbSchema* schema, const DbRow* row);
+
+DbPage* cursor_get_page(TableCursor* cursor);
 
 #endif //DATABASE_CURSOR_H

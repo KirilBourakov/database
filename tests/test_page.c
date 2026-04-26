@@ -8,7 +8,7 @@ void test_create_page(void) {
     DbPage* page = create_page(page_id);
     TEST_ASSERT_NOT_NULL(page);
 
-    PageHeader* header = (PageHeader*)page->data;
+    PageHeader* header = page_get_header(page);
     TEST_ASSERT_EQUAL_UINT32(page_id, header->page_id);
     TEST_ASSERT_EQUAL_UINT16(0, header->num_slots);
     TEST_ASSERT_EQUAL_UINT16(sizeof(PageHeader), header->slot_array_end);
@@ -31,7 +31,7 @@ void test_page_insert(void) {
     int slot = page_insert(page, row, size);
     TEST_ASSERT_EQUAL_INT(0, slot);
 
-    PageHeader* header = (PageHeader*)page->data;
+    PageHeader* header = page_get_header(page);
     TEST_ASSERT_EQUAL_UINT16(1, header->num_slots);
     TEST_ASSERT_EQUAL_UINT16(sizeof(PageHeader) + PAGE_SLOT_SIZE, header->slot_array_end);
     TEST_ASSERT_EQUAL_UINT16(PAGE_SIZE - size, header->row_data_start);

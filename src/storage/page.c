@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct DbPage {
+    char data[PAGE_SIZE];
+};
+
 DbPage* create_page(const int id) {
     DbPage* page = calloc(1, sizeof(DbPage));
     PageHeader* header = (PageHeader*)page->data;
@@ -23,6 +27,14 @@ void destroy_page(DbPage** page_ptr) {
         free(*page_ptr);
         *page_ptr = NULL;
     }
+}
+
+PageHeader* page_get_header(const DbPage* page) {
+    return (PageHeader*)page->data;
+}
+
+void* page_get_raw_data(DbPage* page) {
+    return page->data;
 }
 
 void* slot_data(DbPage* page, const uint16_t slot) {
