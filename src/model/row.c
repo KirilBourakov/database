@@ -29,14 +29,13 @@ DbRow* create_row(const DbSchema* schema, ...) {
             case FIXED_POINTER:
                 memcpy(row->values[i].value.fixed_string, incoming_data, schema->columns[i].bytes);
                 break;
-            case VARIABLE_POINTER:
-                {
-                    const int bytes = va_arg(args, int);
-                    row->values[i].value.var.data = malloc(bytes);
-                    memcpy(row->values[i].value.var.data, incoming_data, bytes);
-                    row->values[i].value.var.bytes = bytes;
-                }
+            case VARIABLE_POINTER: {
+                const int bytes = va_arg(args, int);
+                row->values[i].value.var.data = malloc(bytes);
+                memcpy(row->values[i].value.var.data, incoming_data, bytes);
+                row->values[i].value.var.bytes = bytes;
                 break;
+            }
         }
     }
 

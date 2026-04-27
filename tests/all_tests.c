@@ -8,6 +8,7 @@ void tearDown(void) {}
 
 // Row tests
 void test_malloc_dealloc_row(void);
+void test_create_row(void);
 void test_pack_unpack_row(void);
 
 // Page tests
@@ -26,6 +27,7 @@ int main(void) {
     
     // Row Tests
     RUN_TEST(test_malloc_dealloc_row);
+    RUN_TEST(test_create_row);
     RUN_TEST(test_pack_unpack_row);
     
     // Page Tests
