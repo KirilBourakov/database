@@ -4,6 +4,7 @@
 
 #include "access/cursor.h"
 #include "model/row.h"
+#include "storage/disk.h"
 
 int main(void) {
     const char* filename = "out.data";
@@ -28,15 +29,8 @@ int main(void) {
 
     // Initial scan to setup cursor
     TableCursor* cursor = start_table_scan(fp);
-    
-    DbRow *current_row = malloc_row(schema);
-    current_row->values[0].value.i = 32;
-    strcpy(current_row->values[1].value.fixed_string, "2!");
-    
-    char* var_val = "Variable Data";
-    current_row->values[2].value.var.bytes = strlen(var_val) + 1;
-    current_row->values[2].value.var.data = malloc(current_row->values[2].value.var.bytes);
-    memcpy(current_row->values[2].value.var.data, var_val, current_row->values[2].value.var.bytes);
+
+    DbRow *current_row = create_row(schema, &(int64_t){32}, "2! ", "V. Data", 8);
 
     insert(cursor, schema, current_row);
 

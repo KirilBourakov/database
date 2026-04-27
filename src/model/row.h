@@ -27,6 +27,7 @@ typedef struct {
     DbValue* values;
 } DbRow;
 
+DbRow* create_row(const DbSchema* schema, ...);
 DbRow* malloc_row(const DbSchema* schema);
 void dealloc_row(const DbSchema* schema, DbRow* buffer);
 void unpack_row(const DbSchema* schema, const void* raw_row_memory, const DbRow* out_row);

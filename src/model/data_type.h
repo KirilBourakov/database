@@ -19,6 +19,12 @@ typedef enum {
     #undef X
 } DataType;
 
+typedef enum {
+    LITERAL = 0,
+    FIXED_POINTER,
+    VARIABLE_POINTER
+} DataTypeClass;
+
 static inline int get_default_size(const DataType type) {
     static const int sizes[] = {
         #define X(name, size) size,
@@ -26,6 +32,17 @@ static inline int get_default_size(const DataType type) {
         #undef X
     };
     return sizes[type];
+}
+
+static inline DataTypeClass get_variable_typeclass(const DataType type) {
+    switch (get_default_size(type)) {
+        case -1:
+            return VARIABLE_POINTER;
+        case 0:
+            return FIXED_POINTER;
+        default:
+            return LITERAL;
+    }
 }
 
 static inline bool is_variable_size(DataType type) {
