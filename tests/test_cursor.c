@@ -24,7 +24,7 @@ void test_cursor_next_navigation(void) {
     FILE* fp = fopen("cursor_test.data", "wb+");
     
     // Define a simple schema
-    ColumnDef def = make_column(TYPE_FIXED_STRING, 8);
+    ColumnDef def = make_column(TYPE_FIXED_STRING, 8, "t1");
     DbSchema* schema = alloc_schema(&def, 1);
 
     // Manually setup a page with data to test navigation

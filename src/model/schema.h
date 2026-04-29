@@ -13,12 +13,13 @@
 typedef struct {
     DataType type;
     int bytes;
+    const char* name;
 } ColumnDef;
-ColumnDef make_column_impl(DataType type, int explicit_size);
-#define MAKE_COL_1(type) make_column_impl(type, 0)
-#define MAKE_COL_2(type, size) make_column_impl(type, size)
-#define GET_3RD_ARG(arg1, arg2, arg3, ...) arg3
-#define make_column(...) GET_3RD_ARG(__VA_ARGS__, MAKE_COL_2, MAKE_COL_1)(__VA_ARGS__)
+ColumnDef make_column_impl(DataType type, int explicit_size, const char* name);
+#define MAKE_COL_1(type, name) make_column_impl(type, 0, name)
+#define MAKE_COL_2(type, size, name) make_column_impl(type, size, name)
+#define GET_IMP(arg1, arg2, arg3, arg4, ...) arg4
+#define make_column(...) GET_IMP(__VA_ARGS__, MAKE_COL_2, MAKE_COL_1)(__VA_ARGS__)
 
 typedef struct {
     ColumnDef* columns;
@@ -29,7 +30,8 @@ typedef struct {
     size_t fixed_bytes;
 } DbSchema;
 
-DbSchema* alloc_schema(ColumnDef* columns, size_t count);
+DbSchema* alloc_schema(const ColumnDef* columns, size_t count);
 void dealloc_schema(DbSchema* schema);
+int get_column_index(const DbSchema* schema, const char* name);
 
 #endif //DATABASE_SCHEMA_H

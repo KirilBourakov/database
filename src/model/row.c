@@ -170,3 +170,8 @@ size_t row_packed_size(const DbSchema* schema, const DbRow* row) {
     }
     return size;
 }
+DbValue* get_row_value(const DbSchema* schema, const DbRow* row, const char* name) {
+    const int index = get_column_index(schema, name);
+    if (index == -1) return NULL;
+    return &row->values[index];
+}

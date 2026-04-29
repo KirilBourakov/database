@@ -33,5 +33,6 @@ void dealloc_row(const DbSchema* schema, DbRow* buffer);
 void unpack_row(const DbSchema* schema, const void* raw_row_memory, const DbRow* out_row);
 void pack_row(const DbSchema* schema, const DbRow* row, void* buffer);
 size_t row_packed_size(const DbSchema* schema, const DbRow* row);
+DbValue* get_row_value(const DbSchema* schema, const DbRow* row, const char* name);
 
 #endif //DATABASE_ROW_H
