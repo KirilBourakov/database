@@ -5,8 +5,8 @@
 
 void test_malloc_dealloc_row(void) {
     ColumnDef defs[] = {
-        make_column(TYPE_INT64, "t1"),
-        make_column(TYPE_VAR_STRING, 50, "t2")
+        make_column(TYPE_INT64, "t1", COL_FLAG_NONE),
+        make_column(TYPE_VAR_STRING, 50, "t2", COL_FLAG_NONE)
     };
     DbSchema* schema = alloc_schema(defs, 2);
 
@@ -21,9 +21,9 @@ void test_malloc_dealloc_row(void) {
 
 void test_create_row(void) {
     ColumnDef defs[] = {
-        make_column(TYPE_INT64, "t1"),
-        make_column(TYPE_FIXED_STRING, 10, "t2"),
-        make_column(TYPE_VAR_STRING, 50, "t3")
+        make_column(TYPE_INT64, "t1", COL_FLAG_NONE),
+        make_column(TYPE_FIXED_STRING, 10, "t2", COL_FLAG_NONE),
+        make_column(TYPE_VAR_STRING, 50, "t3", COL_FLAG_NONE)
     };
     DbSchema* schema = alloc_schema(defs, 3);
 
@@ -42,9 +42,9 @@ void test_create_row(void) {
 
 void test_pack_unpack_row(void) {
     ColumnDef defs[] = {
-        make_column(TYPE_INT64, "t1"),
-        make_column(TYPE_FIXED_STRING, 10, "t2"),
-        make_column(TYPE_VAR_STRING, 50, "t3")
+        make_column(TYPE_INT64, "t1", COL_FLAG_NONE),
+        make_column(TYPE_FIXED_STRING, 10, "t2", COL_FLAG_NONE),
+        make_column(TYPE_VAR_STRING, 50, "t3", COL_FLAG_NONE)
     };
     DbSchema* schema = alloc_schema(defs, 3);
 

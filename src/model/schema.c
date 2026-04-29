@@ -58,7 +58,7 @@ int get_column_index(const DbSchema* schema, const char* name) {
     return -1;
 }
 
-ColumnDef make_column_impl(const DataType type, const int explicit_size, const char* name) {
+ColumnDef make_column_impl(const DataType type, const int explicit_size, const char* name, const uint16_t flags) {
     const int default_size = get_default_size(type);
 
     if (default_size > 0 && explicit_size != 0) {
@@ -69,5 +69,5 @@ ColumnDef make_column_impl(const DataType type, const int explicit_size, const c
     }
 
     const int final_bytes = (default_size > 0) ? default_size : explicit_size;
-    return (ColumnDef){ .type = type, .bytes = final_bytes, .name = name };
+    return (ColumnDef){ .type = type, .bytes = final_bytes, .name = name, .flags = flags };
 }

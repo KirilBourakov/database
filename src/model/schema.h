@@ -6,20 +6,37 @@
 #define DATABASE_SCHEMA_H
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include "data_type.h"
 
 
+typedef enum {
+    COL_FLAG_NONE = 0b0,
+    COL_FLAG_PK = 0b1,
+    COL_FLAG_NOT_NULLABLE = 0b10
+} ColumnFlags;
+
 typedef struct {
     DataType type;
     int bytes;
+    uint16_t flags;
     const char* name;
 } ColumnDef;
-ColumnDef make_column_impl(DataType type, int explicit_size, const char* name);
-#define MAKE_COL_1(type, name) make_column_impl(type, 0, name)
-#define MAKE_COL_2(type, size, name) make_column_impl(type, size, name)
-#define GET_IMP(arg1, arg2, arg3, arg4, ...) arg4
-#define make_column(...) GET_IMP(__VA_ARGS__, MAKE_COL_2, MAKE_COL_1)(__VA_ARGS__)
+
+ColumnDef make_column_impl(DataType type, int explicit_size, const char* name, uint16_t flags);
+
+/* Support:
+   make_column(type, name, flags) -> 3 args
+   make_column(type, size, name, flags) -> 4 args
+*/
+#define MAKE_COL_3(type, name, flags) \
+    make_column_impl(type, 0, name, flags)
+#define MAKE_COL_4(type, size, name, flags) \
+    make_column_impl(type, size, name, flags)
+
+#define GET_MACRO(_1, _2, _3, _4, NAME, ...) NAME
+#define make_column(...) GET_MACRO(__VA_ARGS__, MAKE_COL_4, MAKE_COL_3)(__VA_ARGS__)
 
 typedef struct {
     ColumnDef* columns;

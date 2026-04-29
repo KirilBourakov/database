@@ -20,9 +20,9 @@ int main(void) {
     }
 
     ColumnDef defs[] = {
-        make_column(TYPE_INT64, "pk"),
-        make_column(TYPE_FIXED_STRING, sizeof(char) * 4, "val1"),
-        make_column(TYPE_VAR_STRING, 100, "val2")
+        make_column(TYPE_INT64, "pk", COL_FLAG_PK | COL_FLAG_NOT_NULLABLE),
+        make_column(TYPE_FIXED_STRING, sizeof(char) * 4, "val1", COL_FLAG_NONE),
+        make_column(TYPE_VAR_STRING, 100, "val2", COL_FLAG_NOT_NULLABLE)
     };
 
     const DbSchema* schema = alloc_schema(defs, 3);
