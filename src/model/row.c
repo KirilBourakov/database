@@ -43,6 +43,44 @@ DbRow* create_row(const DbSchema* schema, ...) {
     return row;
 }
 
+bool row_contains(const DbSchema* schema, const DbRow* row, const MatchCondition* conditions, const size_t count) {
+    for (size_t i = 0; i < count; i++) {
+        int col_i = get_column_index(schema, conditions[i].column_name);
+        if (col_i == -1) {
+            return false;
+        }
+        
+        const DataTypeClass class = get_variable_typeclass(schema->columns[col_i].type);
+
+        const void* row_data_ptr = NULL;
+        size_t row_data_size = 0;
+
+        switch (class) {
+            case LITERAL:
+                row_data_ptr = &row->values[col_i].value;
+                row_data_size = schema->columns[col_i].bytes;
+                break;
+            case FIXED_POINTER:
+                row_data_ptr = row->values[col_i].value.fixed_string;
+                row_data_size = schema->columns[col_i].bytes;
+                break;
+            case VARIABLE_POINTER:
+                row_data_ptr = row->values[col_i].value.var.data;
+                row_data_size = row->values[col_i].value.var.bytes;
+                break;
+        }
+
+        if (row_data_size != conditions[i].bytes) {
+            return false;
+        }
+
+        if (memcmp(row_data_ptr, conditions[i].data, row_data_size) != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
 DbRow* malloc_row(const DbSchema* schema) {
     DbRow* buffer = malloc(sizeof(DbRow));
     buffer->values = malloc(sizeof(DbValue) * schema->columns_count);

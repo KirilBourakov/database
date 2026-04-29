@@ -71,3 +71,48 @@ void test_pack_unpack_row(void) {
     free(buffer);
     dealloc_schema(schema);
 }
+
+void test_row_contains(void) {
+    ColumnDef defs[] = {
+        make_column(TYPE_INT64, "pk", COL_FLAG_PK),
+        make_column(TYPE_FIXED_STRING, 10, "fixed", COL_FLAG_NONE),
+        make_column(TYPE_VAR_STRING, 50, "var", COL_FLAG_NONE)
+    };
+    DbSchema* schema = alloc_schema(defs, 3);
+
+    char* var_data = "Hello World";
+    int var_len = strlen(var_data) + 1;
+    int64_t pk_val = 42;
+    DbRow* row = create_row(schema, &pk_val, "FixedData", var_data, var_len);
+
+    // Test 1: Match single LITERAL column
+    MatchCondition cond1 = {"pk", &pk_val, sizeof(int64_t)};
+    TEST_ASSERT_TRUE(row_contains(schema, row, &cond1, 1));
+
+    // Test 2: Match multiple columns
+    MatchCondition cond2[] = {
+        {"pk", &pk_val, sizeof(int64_t)},
+        {"fixed", "FixedData", 10}
+    };
+    TEST_ASSERT_TRUE(row_contains(schema, row, cond2, 2));
+
+    // Test 3: Match variable length column
+    MatchCondition cond3 = {"var", var_data, var_len};
+    TEST_ASSERT_TRUE(row_contains(schema, row, &cond3, 1));
+
+    // Test 4: Mismatch on value
+    int64_t wrong_pk = 99;
+    MatchCondition cond4 = {"pk", &wrong_pk, sizeof(int64_t)};
+    TEST_ASSERT_FALSE(row_contains(schema, row, &cond4, 1));
+
+    // Test 5: Mismatch on size
+    MatchCondition cond5 = {"var", var_data, var_len - 1};
+    TEST_ASSERT_FALSE(row_contains(schema, row, &cond5, 1));
+
+    // Test 6: Non-existent column
+    MatchCondition cond6 = {"missing", &pk_val, sizeof(int64_t)};
+    TEST_ASSERT_FALSE(row_contains(schema, row, &cond6, 1));
+
+    dealloc_row(schema, row);
+    dealloc_schema(schema);
+}

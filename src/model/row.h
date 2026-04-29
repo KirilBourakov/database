@@ -27,6 +27,12 @@ typedef struct {
     DbValue* values;
 } DbRow;
 
+typedef struct {
+    const char* column_name;
+    const void* data;
+    size_t bytes;
+} MatchCondition;
+
 DbRow* create_row(const DbSchema* schema, ...);
 DbRow* malloc_row(const DbSchema* schema);
 void dealloc_row(const DbSchema* schema, DbRow* buffer);
@@ -34,5 +40,6 @@ void unpack_row(const DbSchema* schema, const void* raw_row_memory, const DbRow*
 void pack_row(const DbSchema* schema, const DbRow* row, void* buffer);
 size_t row_packed_size(const DbSchema* schema, const DbRow* row);
 DbValue* get_row_value(const DbSchema* schema, const DbRow* row, const char* name);
+bool row_contains(const DbSchema* schema, const DbRow* row, const MatchCondition* conditions, size_t count);
 
 #endif //DATABASE_ROW_H
