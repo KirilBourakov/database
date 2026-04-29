@@ -25,6 +25,12 @@ typedef enum {
     VARIABLE_POINTER
 } DataTypeClass;
 
+/**
+ * @brief Gets the default size in bytes for a given DataType.
+ * 
+ * @param type The DataType to query.
+ * @return int The size in bytes, 0 for FIXED_STRING (needs explicit size), -1 for VAR_STRING.
+ */
 static inline int get_default_size(const DataType type) {
     static const int sizes[] = {
         #define X(name, size) size,
@@ -34,6 +40,12 @@ static inline int get_default_size(const DataType type) {
     return sizes[type];
 }
 
+/**
+ * @brief Determines the DataTypeClass for a given DataType.
+ * 
+ * @param type The DataType to query.
+ * @return DataTypeClass The class of the data type (LITERAL, FIXED_POINTER, or VARIABLE_POINTER).
+ */
 static inline DataTypeClass get_variable_typeclass(const DataType type) {
     switch (get_default_size(type)) {
         case -1:
@@ -45,6 +57,12 @@ static inline DataTypeClass get_variable_typeclass(const DataType type) {
     }
 }
 
+/**
+ * @brief Checks if a DataType is variable-sized.
+ * 
+ * @param type The DataType to check.
+ * @return true if the type is VAR_STRING, false otherwise.
+ */
 static inline bool is_variable_size(DataType type) {
     return get_default_size(type) == -1;
 }
