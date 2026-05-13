@@ -19,7 +19,7 @@ typedef enum {
 
 typedef struct {
     DataType type; // columns datatype
-    int bytes; // size of type. Max Size for a variable pointer. In a variable pointer, -1 means no cap.
+    int32_t bytes; // size of type. Max Size for a variable pointer. In a variable pointer, -1 means no cap.
     uint16_t flags; // column flags
     const char *name; // column name
 } ColumnDef;
@@ -58,12 +58,12 @@ ColumnDef make_column_impl(DataType type, int explicit_size, const char* name, u
 #define make_column(...) GET_MACRO(__VA_ARGS__, MAKE_COL_4, MAKE_COL_3)(__VA_ARGS__)
 
 typedef struct {
-    ColumnDef* columns;
-    size_t columns_count;
+    ColumnDef* columns; // all the columns in the table
+    uint64_t columns_count; // number of columns in the table
 
-    size_t bitmap_bytes;
-    size_t offset_bytes;
-    size_t fixed_bytes;
+    uint64_t bitmap_bytes; // size of null bitmap
+    uint64_t offset_bytes; // size of the variable length offset buffer
+    uint64_t fixed_bytes; // size of the fixed data
 } DbSchema;
 
 /**

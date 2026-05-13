@@ -50,21 +50,52 @@ void dealloc_schema(DbSchema* schema) {
     }
 }
 
+DbSchema* create_schema_from_packed(uint8_t* data) {
+    #define READ_FIELD(val) do { \
+        memcpy(&(val), data, sizeof(val)); \
+        data += sizeof(val); \
+    } while(0)
+
+    uint64_t columns_count;
+    READ_FIELD(columns_count);
+
+    ColumnDef* cols = malloc(columns_count * sizeof(ColumnDef));
+    if (!cols) {
+        DIE("Allocation failed for columns");
+    }
+    for (size_t i = 0; i < columns_count; i++) {
+        uint32_t type_val;
+        READ_FIELD(type_val);
+        cols[i].type = (DataType)type_val;
+        READ_FIELD(cols[i].bytes);
+        READ_FIELD(cols[i].flags);
+    }
+
+
+    for (size_t i = 0; i < columns_count; i++) {
+        cols[i].name = strdup((char*) data);
+        data += strlen(cols[i].name) + 1;
+    }
+
+    #undef READ_FIELD
+
+    DbSchema* nv = alloc_schema(cols, columns_count);
+    for (size_t i = 0; i < columns_count; i++) {
+        free((void*)cols[i].name);
+    }
+    free(cols);
+    return nv;
+}
+
 /**
- * Serialize a provided schema into the format [Schema Header][Column Data][Column Names]
+ * Serialize a provided schema into the format [Col Count][Column Data][Column Names]
  * @param schema The database schema
  * @param size_out The size of the returned pointer
  * @return The allocated memory, filled with the packed schema
  */
 void* alloc_serialize_schema(const DbSchema* schema, size_t* size_out) {
     size_t size = 0;
-
-    // DbSchema fixed fields
-    size += sizeof(schema->fixed_bytes);
-    size += sizeof(schema->offset_bytes);
-    size += sizeof(schema->bitmap_bytes);
     size += sizeof(schema->columns_count);
-
     // Column fields and strings
     for (size_t i = 0; i < schema->columns_count; i++) {
         size += sizeof(schema->columns[i].type);
@@ -85,16 +116,13 @@ void* alloc_serialize_schema(const DbSchema* schema, size_t* size_out) {
         ptr += sizeof(val); \
     } while(0)
 
-    // Schema Header
-    WRITE_FIELD(schema->fixed_bytes);
-    WRITE_FIELD(schema->offset_bytes);
-    WRITE_FIELD(schema->bitmap_bytes);
     WRITE_FIELD(schema->columns_count);
 
     // write columns
     for (size_t i = 0; i < schema->columns_count; i++) {
         const ColumnDef* col = &schema->columns[i];
-        WRITE_FIELD(col->type);
+        uint32_t type_val = (uint32_t)col->type;
+        WRITE_FIELD(type_val);
         WRITE_FIELD(col->bytes);
         WRITE_FIELD(col->flags);
     }
