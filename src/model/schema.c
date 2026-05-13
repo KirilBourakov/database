@@ -50,6 +50,66 @@ void dealloc_schema(DbSchema* schema) {
     }
 }
 
+/**
+ * Serialize a provided schema into the format [Schema Header][Column Data][Column Names]
+ * @param schema The database schema
+ * @param size_out The size of the returned pointer
+ * @return The allocated memory, filled with the packed schema
+ */
+void* alloc_serialize_schema(const DbSchema* schema, size_t* size_out) {
+    size_t size = 0;
+
+    // DbSchema fixed fields
+    size += sizeof(schema->fixed_bytes);
+    size += sizeof(schema->offset_bytes);
+    size += sizeof(schema->bitmap_bytes);
+    size += sizeof(schema->columns_count);
+
+    // Column fields and strings
+    for (size_t i = 0; i < schema->columns_count; i++) {
+        size += sizeof(schema->columns[i].type);
+        size += sizeof(schema->columns[i].bytes);
+        size += sizeof(schema->columns[i].flags);
+        size += strlen(schema->columns[i].name) + 1;
+    }
+
+    uint8_t* data = malloc(size);
+    if (!data) {
+        DIE("Allocation failed");
+    }
+    uint8_t* ptr = data;
+
+    // Helper macro to keep the code clean and prevent typos
+    #define WRITE_FIELD(val) do { \
+        memcpy(ptr, &(val), sizeof(val)); \
+        ptr += sizeof(val); \
+    } while(0)
+
+    // Schema Header
+    WRITE_FIELD(schema->fixed_bytes);
+    WRITE_FIELD(schema->offset_bytes);
+    WRITE_FIELD(schema->bitmap_bytes);
+    WRITE_FIELD(schema->columns_count);
+
+    // write columns
+    for (size_t i = 0; i < schema->columns_count; i++) {
+        const ColumnDef* col = &schema->columns[i];
+        WRITE_FIELD(col->type);
+        WRITE_FIELD(col->bytes);
+        WRITE_FIELD(col->flags);
+    }
+    for (size_t i = 0; i < schema->columns_count; i++) {
+        size_t name_len = strlen(schema->columns[i].name) + 1;
+        memcpy(ptr, schema->columns[i].name, name_len);
+        ptr += name_len;
+    }
+
+    #undef WRITE_FIELD
+
+    *size_out = size;
+    return data;
+}
+
 DbSchema* get_table_schema() {
     const ColumnDef cols[] = {
         make_column(TYPE_INT64, "first_page", COL_FLAG_NONE),
