@@ -31,6 +31,12 @@ DbRow* create_row(const DbSchema* schema, ...) {
                 break;
             case VARIABLE_POINTER: {
                 const int bytes = va_arg(args, int);
+                if (schema->columns[i].bytes != -1 && bytes > schema->columns[i].bytes) {
+                    DIE("Variable column data exceeds schema limit");
+                }
+                if (bytes > PAGE_SIZE) {
+                    DIE("Variable column data exceeds page size limits");
+                }
                 row->values[i].value.var.data = malloc(bytes);
                 memcpy(row->values[i].value.var.data, incoming_data, bytes);
                 row->values[i].value.var.bytes = bytes;

@@ -11,7 +11,8 @@
     X(INT64,  8) \
     X(DOUBLE,  8) \
     X(FIXED_STRING, 0) \
-    X(VAR_STRING, -1)
+    X(VAR_STRING, -1) \
+    X(VAR_BLOB, -1)
 
 typedef enum {
     #define X(name, size) TYPE_##name,

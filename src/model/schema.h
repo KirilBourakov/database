@@ -18,10 +18,10 @@ typedef enum {
 } ColumnFlags;
 
 typedef struct {
-    DataType type;
-    int bytes;
-    uint16_t flags;
-    const char* name;
+    DataType type; // columns datatype
+    int bytes; // size of type. Max Size for a variable pointer. In a variable pointer, -1 means no cap.
+    uint16_t flags; // column flags
+    const char *name; // column name
 } ColumnDef;
 
 /**
@@ -74,6 +74,8 @@ typedef struct {
  * @return DbSchema* A pointer to the newly allocated schema.
  */
 DbSchema* alloc_schema(const ColumnDef* columns, size_t count);
+
+DbSchema* get_table_schema();
 
 /**
  * @brief Deallocates memory used by a DbSchema.

@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "../errors.h"
+#include "storage/page.h"
 
 DbSchema* alloc_schema(const ColumnDef* columns, const size_t count) {
     DbSchema* schema = (DbSchema*) malloc(sizeof(DbSchema));
@@ -49,6 +50,14 @@ void dealloc_schema(DbSchema* schema) {
     }
 }
 
+DbSchema* get_table_schema() {
+    const ColumnDef cols[] = {
+        make_column(TYPE_INT64, "first_page", COL_FLAG_NONE),
+        make_column(TYPE_VAR_BLOB, -1, "defn", COL_FLAG_NOT_NULLABLE)
+    };
+    return alloc_schema(cols, sizeof(cols)/sizeof(ColumnDef));
+}
+
 int get_column_index(const DbSchema* schema, const char* name) {
     for (size_t i = 0; i < schema->columns_count; i++) {
         if (strcmp(schema->columns[i].name, name) == 0) {
@@ -60,12 +69,18 @@ int get_column_index(const DbSchema* schema, const char* name) {
 
 ColumnDef make_column_impl(const DataType type, const int explicit_size, const char* name, const uint16_t flags) {
     const int default_size = get_default_size(type);
+    const DataTypeClass class = get_variable_typeclass(type);
 
     if (default_size > 0 && explicit_size != 0) {
         DIE("Explicit size is set in default size column type");
     }
-    if (default_size <= 0 && explicit_size <= 0) {
-        DIE("Explicit size is less then or equal to 0 in dynamic column");
+
+    if (class == FIXED_POINTER && explicit_size <= 0) {
+        DIE("Explicit size must be positive for FIXED_STRING");
+    }
+
+    if (class == VARIABLE_POINTER && explicit_size <= 0 && explicit_size != -1) {
+        DIE("Explicit size must be positive or -1 for variable length types");
     }
 
     const int final_bytes = (default_size > 0) ? default_size : explicit_size;

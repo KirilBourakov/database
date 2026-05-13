@@ -116,3 +116,33 @@ void test_row_contains(void) {
     dealloc_row(schema, row);
     dealloc_schema(schema);
 }
+
+void test_variable_limit_unlimited(void) {
+    ColumnDef defs[] = {
+        make_column(TYPE_VAR_STRING, -1, "unlimited", COL_FLAG_NONE)
+    };
+    DbSchema* schema = alloc_schema(defs, 1);
+
+    char* data = "This is a very long string that should be allowed since limit is -1";
+    DbRow* row = create_row(schema, data, (int)strlen(data) + 1);
+    TEST_ASSERT_NOT_NULL(row);
+    TEST_ASSERT_EQUAL_STRING(data, row->values[0].value.var.data);
+
+    dealloc_row(schema, row);
+    dealloc_schema(schema);
+}
+
+void test_variable_limit_enforced(void) {
+    ColumnDef defs[] = {
+        make_column(TYPE_VAR_STRING, 10, "limited", COL_FLAG_NONE)
+    };
+    DbSchema* schema = alloc_schema(defs, 1);
+
+    char* data = "Short";
+    DbRow* row = create_row(schema, data, (int)strlen(data) + 1);
+    TEST_ASSERT_NOT_NULL(row);
+    TEST_ASSERT_EQUAL_STRING(data, row->values[0].value.var.data);
+
+    dealloc_row(schema, row);
+    dealloc_schema(schema);
+}

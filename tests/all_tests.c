@@ -11,6 +11,8 @@ void test_malloc_dealloc_row(void);
 void test_create_row(void);
 void test_pack_unpack_row(void);
 void test_row_contains(void);
+void test_variable_limit_unlimited(void);
+void test_variable_limit_enforced(void);
 
 // Page tests
 void test_create_page(void);
@@ -31,6 +33,8 @@ int main(void) {
     RUN_TEST(test_create_row);
     RUN_TEST(test_pack_unpack_row);
     RUN_TEST(test_row_contains);
+    RUN_TEST(test_variable_limit_unlimited);
+    RUN_TEST(test_variable_limit_enforced);
     
     // Page Tests
     RUN_TEST(test_create_page);
