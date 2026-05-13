@@ -17,7 +17,7 @@ typedef struct TableCursor TableCursor;
  * @param file The file containing the table data.
  * @return TableCursor* A pointer to the newly created cursor.
  */
-TableCursor* start_table_scan(FILE* file);
+TableCursor* start_table_scan(FILE* file, int page_id);
 
 /**
  * @brief Stops a table scan and deallocates the cursor.

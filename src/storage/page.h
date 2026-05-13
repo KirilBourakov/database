@@ -10,8 +10,11 @@
 
 #include <stdint.h>
 
+#define INVALID_PAGE_ID ((uint32_t)-1)
+
 typedef struct {
     uint32_t page_id;
+    uint32_t next_page_id;
 
     uint16_t slot_array_end;
     uint16_t row_data_start;

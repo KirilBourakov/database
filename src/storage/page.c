@@ -16,6 +16,7 @@ DbPage* create_page(const int id) {
     PageHeader* header = (PageHeader*)page->data;
 
     header->page_id = id;
+    header->next_page_id = INVALID_PAGE_ID;
     header->num_slots = 0;
     header->slot_array_end = sizeof(PageHeader);
     header->row_data_start = PAGE_SIZE;

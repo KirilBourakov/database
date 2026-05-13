@@ -12,19 +12,19 @@ struct TableCursor {
     FILE* file;
     DbPage* current_page;
     uint16_t current_slot;
-    int end_of_table;
+    bool end_of_table;
 };
 
-TableCursor* start_table_scan(FILE* file) {
+TableCursor* start_table_scan(FILE* file, const int page_id) {
     TableCursor* cursor = malloc(sizeof(TableCursor));
     cursor->file = file;
     cursor->current_slot = 0;
-    cursor->end_of_table = 0;
-    cursor->current_page = create_page(0);
+    cursor->end_of_table = false;
+    cursor->current_page = create_page(page_id);
 
-    rewind(file);
+    fseek(file, page_id*PAGE_SIZE, SEEK_SET);
     if (fread(page_get_raw_data(cursor->current_page), 1, PAGE_SIZE, file) != PAGE_SIZE) {
-        cursor->end_of_table = 1;
+        cursor->end_of_table = true;
     }
 
     return cursor;
@@ -46,15 +46,20 @@ int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_ro
     PageHeader* header = page_get_header(cursor->current_page);
     while (1) {
         if (cursor->current_slot >= header->num_slots) {
-            // Read the next physical page in the file
-            if (fread(page_get_raw_data(cursor->current_page), 1, PAGE_SIZE, cursor->file) != PAGE_SIZE) {
-                cursor->end_of_table = 1;
-                return 0;
+            bool read_success = false;
+            if (header->next_page_id != INVALID_PAGE_ID) {
+                fseek(cursor->file, header->next_page_id*PAGE_SIZE, SEEK_SET);
+                if (fread(page_get_raw_data(cursor->current_page), 1, PAGE_SIZE, cursor->file) == PAGE_SIZE) {
+                    cursor->current_slot = 0;
+                    header = page_get_header(cursor->current_page);
+                    read_success = true;
+                }
             }
 
-            cursor->current_slot = 0;
-            header = page_get_header(cursor->current_page);
-            continue;
+            if (!read_success) {
+                cursor->end_of_table = true;
+                return 0;
+            }
         }
 
         const void* raw_row_memory = slot_data(cursor->current_page, cursor->current_slot);

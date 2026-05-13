@@ -7,6 +7,9 @@
 #include "storage/disk.h"
 
 int main(void) {
+    // TODO: add schema serialize / deserialize
+    // add way to add more pages
+    // special System Cursor with extra func just for this?
     const char* filename = "out.data";
     // Try to open for update, if fails, create with wb+
     FILE *fp = fopen(filename, "rb+");
