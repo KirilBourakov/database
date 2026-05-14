@@ -14,6 +14,7 @@ add_library(db_lib STATIC
         src/storage/disk.c
 
         src/access/cursor.c
+        src/access/system_access.c
 )
 
 # Main executable
