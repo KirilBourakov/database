@@ -38,9 +38,9 @@ int main(void) {
         user_table_root = insert_new_schema(sys_access, user_schema);
         
         // 4. Create the first page for the user table
-        DbPage* user_page = create_page(user_table_root);
+        DbPage* user_page = alloc_page(user_table_root);
         writeback(user_page, fp);
-        destroy_page(&user_page);
+        dealloc_page(&user_page);
 
         // 5. Commit changes to system table (write back page 0)
         writeback(cursor_get_page(asTableAccess(sys_access)), fp);
@@ -66,22 +66,25 @@ int main(void) {
         printf("Schema loaded. Root page for user table: %llu\n", user_table_root);
     }
 
+    // Now that we have user_schema and user_table_root (either created or loaded), 
+    // we can perform operations.
+
     // Insert a row into the user table
-    TableCursor* cursor = start_table_scan(fp, (int)user_table_root);
+    TableCursor* cursor = alloc_table_cursor(fp, (int)user_table_root);
     int64_t pk = (int64_t)rand(); // Random PK for demonstration
-    DbRow *current_row = create_row(user_schema, &pk, "2! ", "New Variable Data Entry", (uint64_t)25);
+    DbRow *current_row = alloc_filled_row(user_schema, &pk, "2! ", "New Variable Data Entry", (uint64_t)25);
 
     printf("Inserting row with PK: %lld\n", pk);
     insert(cursor, user_schema, current_row);
     writeback(cursor_get_page(cursor), fp);
 
-    dealloc_row(user_schema, current_row);
-    stop_table_scan(&cursor);
+    dealloc_row(user_schema, &current_row);
+    dealloc_table_cursor(&cursor);
 
     // Scan and print all rows in the user table
     printf("Scanning user table contents:\n");
-    TableCursor* scan_cursor = start_table_scan(fp, (int)user_table_root);
-    DbRow *rowOut = malloc_row(user_schema);
+    TableCursor* scan_cursor = alloc_table_cursor(fp, (int)user_table_root);
+    DbRow *rowOut = alloc_row(user_schema);
     int count = 0;
     while (cursor_next(scan_cursor, user_schema, rowOut)) {
         printf("Row %d: PK=%lld, val1='%s', val2='%s'\n",
@@ -91,10 +94,10 @@ int main(void) {
             rowOut->values[2].value.var.data
         );
     }
-    dealloc_row(user_schema, rowOut);
-    stop_table_scan(&scan_cursor);
+    dealloc_row(user_schema, &rowOut);
+    dealloc_table_cursor(&scan_cursor);
     
     fclose(fp);
-    dealloc_schema(user_schema);
+    dealloc_schema(&user_schema);
     return 0;
 }

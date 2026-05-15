@@ -19,12 +19,12 @@ FILE* cursor_get_file(const TableCursor* cursor) {
     return cursor->file;
 }
 
-TableCursor* start_table_scan(FILE* file, const int page_id) {
+TableCursor* alloc_table_cursor(FILE* file, const int page_id) {
     TableCursor* cursor = malloc(sizeof(TableCursor));
     cursor->file = file;
     cursor->current_slot = 0;
     cursor->end_of_table = false;
-    cursor->current_page = create_page(page_id);
+    cursor->current_page = alloc_page(page_id);
 
     fseek(file, page_id*PAGE_SIZE, SEEK_SET);
     if (fread(page_get_raw_data(cursor->current_page), 1, PAGE_SIZE, file) != PAGE_SIZE) {
@@ -34,9 +34,9 @@ TableCursor* start_table_scan(FILE* file, const int page_id) {
     return cursor;
 }
 
-void stop_table_scan(TableCursor** cursor_ptr) {
+void dealloc_table_cursor(TableCursor** cursor_ptr) {
     if (cursor_ptr != NULL && *cursor_ptr != NULL) {
-        destroy_page(&(*cursor_ptr)->current_page);
+        dealloc_page(&(*cursor_ptr)->current_page);
         free(*cursor_ptr);
         *cursor_ptr = NULL;
     }
@@ -93,6 +93,6 @@ int insert(const TableCursor* cursor, const DbSchema* schema, const DbRow* row) 
     DIE("write_row failed to alloc buffer.");
 }
 
-DbPage* cursor_get_page(TableCursor* cursor) {
+DbPage* cursor_get_page(const TableCursor* cursor) {
     return cursor->current_page;
 }

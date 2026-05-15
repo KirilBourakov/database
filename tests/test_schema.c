@@ -16,7 +16,7 @@ void test_schema_serialization(void) {
     TEST_ASSERT_NOT_NULL(packed);
     TEST_ASSERT_TRUE(packed_size > 0);
 
-    DbSchema* unpacked = create_schema_from_packed((uint8_t*)packed);
+    DbSchema* unpacked = alloc_schema_from_packed((uint8_t*)packed);
     TEST_ASSERT_NOT_NULL(unpacked);
     TEST_ASSERT_EQUAL_INT(original->columns_count, unpacked->columns_count);
 
@@ -28,6 +28,6 @@ void test_schema_serialization(void) {
     }
 
     free(packed);
-    dealloc_schema(original);
-    dealloc_schema(unpacked);
+    dealloc_schema(&original);
+    dealloc_schema(&unpacked);
 }

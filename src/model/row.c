@@ -14,11 +14,11 @@
 
 #include <stdarg.h>
 
-DbRow* create_row(const DbSchema* schema, ...) {
+DbRow* alloc_filled_row(const DbSchema* schema, ...) {
     va_list args;
     va_start(args, schema);
 
-    DbRow* row = malloc_row(schema);
+    DbRow* row = alloc_row(schema);
     for (size_t i = 0; i < schema->columns_count; i++) {
         const DataTypeClass class = get_variable_typeclass(schema->columns[i].type);
         const void* incoming_data = va_arg(args, void*);
@@ -31,7 +31,7 @@ DbRow* create_row(const DbSchema* schema, ...) {
                 break;
             case VARIABLE_POINTER: {
                 const uint64_t bytes = va_arg(args, uint64_t);
-                if (schema->columns[i].bytes != -1 && bytes > schema->columns[i].bytes) {
+                if (schema->columns[i].bytes != -1 && (int)bytes > schema->columns[i].bytes) {
                     DIE("Variable column data exceeds schema limit");
                 }
                 if (bytes > PAGE_SIZE) {
@@ -87,7 +87,7 @@ bool row_contains(const DbSchema* schema, const DbRow* row, const MatchCondition
     return true;
 }
 
-DbRow* malloc_row(const DbSchema* schema) {
+DbRow* alloc_row(const DbSchema* schema) {
     DbRow* buffer = malloc(sizeof(DbRow));
     buffer->values = malloc(sizeof(DbValue) * schema->columns_count);
     for (size_t i = 0; i < schema->columns_count; i++) {
@@ -101,7 +101,9 @@ DbRow* malloc_row(const DbSchema* schema) {
     }
     return buffer;
 }
-void dealloc_row(const DbSchema* schema, DbRow* buffer) {
+void dealloc_row(const DbSchema* schema, DbRow** row_ptr) {
+    if (row_ptr == NULL || *row_ptr == NULL) return;
+    DbRow* buffer = *row_ptr;
     for (size_t i = 0; i < schema->columns_count; i++) {
         if (schema->columns[i].type == TYPE_FIXED_STRING) {
             free(buffer->values[i].value.fixed_string);
@@ -114,6 +116,7 @@ void dealloc_row(const DbSchema* schema, DbRow* buffer) {
     }
     free(buffer->values);
     free(buffer);
+    *row_ptr = NULL;
 }
 
 /**

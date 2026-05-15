@@ -10,7 +10,7 @@ void test_writeback_position(void) {
     TEST_ASSERT_NOT_NULL(fp);
 
     // Create a page with ID 5
-    DbPage* page = create_page(5);
+    DbPage* page = alloc_page(5);
     PageHeader* header = page_get_header(page);
     header->num_slots = 123; // Some dummy data
 
@@ -29,7 +29,7 @@ void test_writeback_position(void) {
     TEST_ASSERT_EQUAL_UINT32(5, read_header->page_id);
     TEST_ASSERT_EQUAL_UINT16(123, read_header->num_slots);
 
-    destroy_page(&page);
+    dealloc_page(&page);
     fclose(fp);
     remove(filename);
 }

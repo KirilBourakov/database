@@ -31,13 +31,14 @@ DbSchema* get_table_schema() {
 SystemAccessor* alloc_system_access(FILE* file) {
     SystemAccessor* access = (SystemAccessor*)malloc(sizeof(SystemAccessor));
     access->schema = get_table_schema();
-    access->cursor = start_table_scan(file, 0);
+    access->cursor = alloc_table_cursor(file, 0);
     return access;
 }
 
 void dealloc_system_access(SystemAccessor** access) {
-    dealloc_schema((*access)->schema);
-    stop_table_scan(&(*access)->cursor);
+    if (access == NULL || *access == NULL) return;
+    dealloc_schema(&(*access)->schema);
+    dealloc_table_cursor(&(*access)->cursor);
     free(*access);
     *access = NULL;
 }
@@ -46,31 +47,31 @@ uint64_t insert_new_schema(const SystemAccessor* sys_access, const DbSchema* new
     uint64_t page_count = get_page_count(cursor_get_file(sys_access->cursor));
     uint64_t buffer_size;
     void* buffer = alloc_serialize_schema(new_schema, &buffer_size);
-    DbRow* row = create_row(sys_access->schema, &page_count, buffer, buffer_size);
+    DbRow* row = alloc_filled_row(sys_access->schema, &page_count, buffer, buffer_size);
     insert(sys_access->cursor, sys_access->schema, row);
 
-    dealloc_row(sys_access->schema, row);
+    dealloc_row(sys_access->schema, &row);
     free(buffer);
 
     return page_count;
 }
 
 DbSchema* get_next_schema(const SystemAccessor* sys_access, uint64_t* schema_root) {
-    DbRow* row = malloc_row(sys_access->schema);
+    DbRow* row = alloc_row(sys_access->schema);
     bool value = cursor_next(sys_access->cursor, sys_access->schema, row);
 
     if (value) {
         const DbValue* val = get_row_value(sys_access->schema, row, BLOB_NAME);
-        DbSchema* schema = create_schema_from_packed((uint8_t*) val->value.var.data);
+        DbSchema* schema = alloc_schema_from_packed((uint8_t*) val->value.var.data);
 
         *schema_root = get_row_value(sys_access->schema, row, ROOT_PAGE_NAME)->value.i;
 
-        dealloc_row(sys_access->schema, row);
+        dealloc_row(sys_access->schema, &row);
 
         return schema;
     }
 
-    dealloc_row(sys_access->schema, row);
+    dealloc_row(sys_access->schema, &row);
     *schema_root = -1;
     return NULL;
 }

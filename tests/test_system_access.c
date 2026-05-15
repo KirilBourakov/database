@@ -10,7 +10,10 @@ void test_system_access_lifecycle(void) {
     FILE* fp = fopen(filename, "wb+");
     TEST_ASSERT_NOT_NULL(fp);
 
-    init_db(fp);
+    // Setup initial system page
+    DbPage* page = alloc_page(0);
+    writeback(page, fp);
+    dealloc_page(&page);
 
     SystemAccessor* sys_access = alloc_system_access(fp);
     TEST_ASSERT_NOT_NULL(sys_access);
@@ -27,7 +30,10 @@ void test_insert_and_get_schema(void) {
     FILE* fp = fopen(filename, "wb+");
     TEST_ASSERT_NOT_NULL(fp);
 
-    init_db(fp);
+    // Setup initial system page
+    DbPage* sys_page = alloc_page(0);
+    writeback(sys_page, fp);
+    dealloc_page(&sys_page);
 
     SystemAccessor* sys_access = alloc_system_access(fp);
 
@@ -56,8 +62,8 @@ void test_insert_and_get_schema(void) {
     TEST_ASSERT_EQUAL_STRING("id", schema_out->columns[0].name);
     TEST_ASSERT_EQUAL_STRING("name", schema_out->columns[1].name);
 
-    dealloc_schema(schema_in);
-    dealloc_schema(schema_out);
+    dealloc_schema(&schema_in);
+    dealloc_schema(&schema_out);
     dealloc_system_access(&sys_access2);
 
     fclose(fp);

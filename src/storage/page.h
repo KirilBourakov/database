@@ -25,19 +25,19 @@ typedef struct {
 typedef struct DbPage DbPage;
 
 /**
- * @brief Creates a new database page with the given ID.
+ * @brief Allocates a new database page with the given ID.
  * 
  * @param id The ID of the page.
- * @return DbPage* A pointer to the newly created page.
+ * @return DbPage* A pointer to the newly allocated page.
  */
-DbPage* create_page(uint64_t id);
+DbPage* alloc_page(uint64_t id);
 
 /**
- * @brief Destroys a database page and deallocates its memory.
+ * @brief Deallocates a database page and nullifies the pointer.
  * 
  * @param page_ptr A pointer to the page pointer to deallocate and nullify.
  */
-void destroy_page(DbPage** page_ptr);
+void dealloc_page(DbPage** page_ptr);
 
 /**
  * @brief Retrieves the header of a database page.

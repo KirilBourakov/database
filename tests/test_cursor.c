@@ -10,10 +10,10 @@ void test_cursor_lifecycle(void) {
     FILE* fp = fopen("cursor_test.data", "wb+");
     TEST_ASSERT_NOT_NULL(fp);
 
-    TableCursor* cursor = start_table_scan(fp, 0);
+    TableCursor* cursor = alloc_table_cursor(fp, 0);
     TEST_ASSERT_NOT_NULL(cursor);
 
-    stop_table_scan(&cursor);
+    dealloc_table_cursor(&cursor);
     TEST_ASSERT_NULL(cursor);
 
     fclose(fp);
@@ -28,32 +28,32 @@ void test_cursor_next_navigation(void) {
     DbSchema* schema = alloc_schema(&def, 1);
 
     // Manually setup a page with data to test navigation
-    DbPage* page = create_page(0);
+    DbPage* page = alloc_page(0);
     
     // Record 1
-    DbRow* row1 = create_row(schema, "Record1");
+    DbRow* row1 = alloc_filled_row(schema, "Record1");
     size_t size1 = row_packed_size(schema, row1);
     void* buf1 = malloc(size1);
     pack_row(schema, row1, buf1);
     page_insert(page, buf1, size1);
 
     // Record 2
-    DbRow* row2 = create_row(schema, "Record2");
+    DbRow* row2 = alloc_filled_row(schema, "Record2");
     size_t size2 = row_packed_size(schema, row2);
     void* buf2 = malloc(size2);
     pack_row(schema, row2, buf2);
     page_insert(page, buf2, size2);
     
     writeback(page, fp);
-    destroy_page(&page);
+    dealloc_page(&page);
     free(buf1);
     free(buf2);
-    dealloc_row(schema, row1);
-    dealloc_row(schema, row2);
+    dealloc_row(schema, &row1);
+    dealloc_row(schema, &row2);
 
     // Test that cursor can navigate these records
-    TableCursor* cursor = start_table_scan(fp, 0);
-    DbRow* rowOut = malloc_row(schema);
+    TableCursor* cursor = alloc_table_cursor(fp, 0);
+    DbRow* rowOut = alloc_row(schema);
 
     // Record 1
     TEST_ASSERT_TRUE(cursor_next(cursor, schema, rowOut));
@@ -66,9 +66,9 @@ void test_cursor_next_navigation(void) {
     // End of Table
     TEST_ASSERT_FALSE(cursor_next(cursor, schema, rowOut));
 
-    dealloc_row(schema, rowOut);
-    dealloc_schema(schema);
-    stop_table_scan(&cursor);
+    dealloc_row(schema, &rowOut);
+    dealloc_schema(&schema);
+    dealloc_table_cursor(&cursor);
     fclose(fp);
     remove("cursor_test.data");
 }

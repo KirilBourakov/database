@@ -11,7 +11,7 @@ struct DbPage {
     char data[PAGE_SIZE];
 };
 
-DbPage* create_page(const uint64_t id) {
+DbPage* alloc_page(const uint64_t id) {
     DbPage* page = calloc(1, sizeof(DbPage));
     PageHeader* header = (PageHeader*)page->data;
 
@@ -23,7 +23,7 @@ DbPage* create_page(const uint64_t id) {
     return page;
 }
 
-void destroy_page(DbPage** page_ptr) {
+void dealloc_page(DbPage** page_ptr) {
     if (page_ptr != NULL && *page_ptr != NULL) {
         free(*page_ptr);
         *page_ptr = NULL;

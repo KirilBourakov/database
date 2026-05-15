@@ -14,20 +14,20 @@ typedef struct TableCursor TableCursor;
 FILE* cursor_get_file(const TableCursor* cursor);
 
 /**
- * @brief Starts a full table scan on the provided file.
+ * @brief Allocates and initializes a table cursor for a full table scan.
  * 
  * @param file The file containing the table data.
  * @param page_id Root page id for the schema.
- * @return TableCursor* A pointer to the newly created cursor.
+ * @return TableCursor* A pointer to the newly allocated cursor.
  */
-TableCursor* start_table_scan(FILE* file, int page_id);
+TableCursor* alloc_table_cursor(FILE* file, int page_id);
 
 /**
- * @brief Stops a table scan and deallocates the cursor.
+ * @brief Deallocates memory used by a table cursor and nullifies the pointer.
  * 
  * @param cursor_ptr A pointer to the cursor pointer to deallocate and nullify.
  */
-void stop_table_scan(TableCursor** cursor_ptr);
+void dealloc_table_cursor(TableCursor** cursor_ptr);
 
 /**
  * @brief Advances the cursor to the next row in the table.
@@ -55,6 +55,6 @@ int insert(const TableCursor* cursor, const DbSchema* schema, const DbRow* row);
  * @param cursor The cursor to query.
  * @return DbPage* A pointer to the current page.
  */
-DbPage* cursor_get_page(TableCursor* cursor);
+DbPage* cursor_get_page(const TableCursor* cursor);
 
 #endif //DATABASE_CURSOR_H

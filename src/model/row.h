@@ -34,16 +34,16 @@ typedef struct {
 } MatchCondition;
 
 /**
- * @brief Creates a new DbRow and populates it with values.
+ * @brief Allocates a new DbRow and populates it with values.
  * 
  * @param schema The schema defining the row structure.
  * @param ... Variadic arguments for the row values.
  *  All Variadic arguments should be pointers.
  *  For fixed length data, a pointer to the data should be provided.
  *  Two arguments are needed for variable length data. First, a pointer to the buffer and then the buffer size (uint64_t).
- * @return DbRow* A pointer to the newly created row.
+ * @return DbRow* A pointer to the newly allocated and populated row.
  */
-DbRow* create_row(const DbSchema* schema, ...);
+DbRow* alloc_filled_row(const DbSchema* schema, ...);
 
 /**
  * @brief Allocates memory for a DbRow based on the provided schema.
@@ -51,15 +51,15 @@ DbRow* create_row(const DbSchema* schema, ...);
  * @param schema The schema defining the row structure.
  * @return DbRow* A pointer to the allocated row.
  */
-DbRow* malloc_row(const DbSchema* schema);
+DbRow* alloc_row(const DbSchema* schema);
 
 /**
- * @brief Deallocates memory used by a DbRow.
+ * @brief Deallocates memory used by a DbRow and nullifies the pointer.
  * 
  * @param schema The schema defining the row structure.
- * @param buffer The row to deallocate.
+ * @param row_ptr A pointer to the row pointer to deallocate.
  */
-void dealloc_row(const DbSchema* schema, DbRow* buffer);
+void dealloc_row(const DbSchema* schema, DbRow** row_ptr);
 
 /**
  * @brief Unpacks raw row memory into a DbRow structure.

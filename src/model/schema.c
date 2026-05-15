@@ -36,21 +36,22 @@ DbSchema* alloc_schema(const ColumnDef* columns, const size_t count) {
     return schema;
 }
 
-void dealloc_schema(DbSchema* schema) {
-    if (schema) {
-        if (schema->columns) {
-            for (size_t i = 0; i < schema->columns_count; i++) {
-                if (schema->columns[i].name) {
-                    free((void*)schema->columns[i].name);
-                }
+void dealloc_schema(DbSchema** schema_ptr) {
+    if (schema_ptr == NULL || *schema_ptr == NULL) return;
+    DbSchema* schema = *schema_ptr;
+    if (schema->columns) {
+        for (size_t i = 0; i < schema->columns_count; i++) {
+            if (schema->columns[i].name) {
+                free((void*)schema->columns[i].name);
             }
-            free(schema->columns);
         }
-        free(schema);
+        free(schema->columns);
     }
+    free(schema);
+    *schema_ptr = NULL;
 }
 
-DbSchema* create_schema_from_packed(uint8_t* data) {
+DbSchema* alloc_schema_from_packed(uint8_t* data) {
     #define READ_FIELD(val) do { \
         memcpy(&(val), data, sizeof(val)); \
         data += sizeof(val); \

@@ -5,9 +5,9 @@
 #include "disk.h"
 
 void init_db(FILE* fp) {
-    DbPage* system_page = create_page(0);
+    DbPage* system_page = alloc_page(0);
     writeback(system_page, fp);
-    destroy_page(&system_page);
+    dealloc_page(&system_page);
 }
 
 int writeback(const DbPage* page, FILE* file) {
