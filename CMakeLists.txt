@@ -28,11 +28,15 @@ add_library(unity STATIC lib/unity/unity.c)
 # Testing
 enable_testing()
 
-add_executable(unit_tests
-    tests/all_tests.c
-    tests/test_row.c
-    tests/test_page.c
-    tests/test_cursor.c
+add_executable(db_tests
+        tests/all_tests.c
+        tests/test_row.c
+        tests/test_page.c
+        tests/test_cursor.c
+        tests/test_file_info.c
+        tests/test_system_access.c
+        tests/test_schema.c
+        tests/test_disk.c
 )
-target_link_libraries(unit_tests db_lib unity)
-add_test(NAME AllTests COMMAND unit_tests)
+target_link_libraries(db_tests db_lib unity)
+add_test(NAME AllTests COMMAND db_tests)
