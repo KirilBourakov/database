@@ -17,4 +17,12 @@
  */
 int writeback(const DbPage* page, FILE* file);
 
+/**
+ * Creates an empty page with id 0, and writes to database.
+ * Used to actually create the database file.
+ * @param fp File Pointer
+ * @return
+ */
+void init_db(FILE* fp);
+
 #endif //DATABASE_DISK_H

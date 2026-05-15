@@ -16,6 +16,10 @@ struct SystemAccessor {
     DbSchema* schema;
 };
 
+TableCursor* asTableAccess(const SystemAccessor* accessor) {
+    return accessor->cursor;
+}
+
 DbSchema* get_table_schema() {
     const ColumnDef cols[] = {
         make_column(TYPE_INT64, ROOT_PAGE_NAME, COL_FLAG_NONE),

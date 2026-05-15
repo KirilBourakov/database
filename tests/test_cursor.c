@@ -10,7 +10,7 @@ void test_cursor_lifecycle(void) {
     FILE* fp = fopen("cursor_test.data", "wb+");
     TEST_ASSERT_NOT_NULL(fp);
 
-    TableCursor* cursor = start_table_scan(fp);
+    TableCursor* cursor = start_table_scan(fp, 0);
     TEST_ASSERT_NOT_NULL(cursor);
 
     stop_table_scan(&cursor);
@@ -52,19 +52,19 @@ void test_cursor_next_navigation(void) {
     dealloc_row(schema, row2);
 
     // Test that cursor can navigate these records
-    TableCursor* cursor = start_table_scan(fp);
+    TableCursor* cursor = start_table_scan(fp, 0);
     DbRow* rowOut = malloc_row(schema);
 
     // Record 1
-    TEST_ASSERT_EQUAL_INT(1, cursor_next(cursor, schema, rowOut));
+    TEST_ASSERT_TRUE(cursor_next(cursor, schema, rowOut));
     TEST_ASSERT_EQUAL_STRING("Record1", rowOut->values[0].value.fixed_string);
 
     // Record 2
-    TEST_ASSERT_EQUAL_INT(1, cursor_next(cursor, schema, rowOut));
+    TEST_ASSERT_TRUE(cursor_next(cursor, schema, rowOut));
     TEST_ASSERT_EQUAL_STRING("Record2", rowOut->values[0].value.fixed_string);
 
     // End of Table
-    TEST_ASSERT_EQUAL_INT(0, cursor_next(cursor, schema, rowOut));
+    TEST_ASSERT_FALSE(cursor_next(cursor, schema, rowOut));
 
     dealloc_row(schema, rowOut);
     dealloc_schema(schema);

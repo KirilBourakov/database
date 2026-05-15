@@ -28,13 +28,14 @@ void test_create_row(void) {
     DbSchema* schema = alloc_schema(defs, 3);
 
     char* var_data = "Variable Length Data";
-    int var_len = strlen(var_data) + 1;
-    DbRow* row = create_row(schema, &(int64_t){987654321}, "FixedStr", var_data, var_len);
+    uint64_t var_len = strlen(var_data) + 1;
+    int64_t val1 = 987654321;
+    DbRow* row = create_row(schema, &val1, "FixedStr", var_data, var_len);
 
-    TEST_ASSERT_EQUAL_INT64(987654321, row->values[0].value.i);
+    TEST_ASSERT_EQUAL_INT64(val1, row->values[0].value.i);
     TEST_ASSERT_EQUAL_STRING("FixedStr", row->values[1].value.fixed_string);
     TEST_ASSERT_EQUAL_STRING(var_data, row->values[2].value.var.data);
-    TEST_ASSERT_EQUAL_INT(var_len, row->values[2].value.var.bytes);
+    TEST_ASSERT_EQUAL_UINT64(var_len, row->values[2].value.var.bytes);
 
     dealloc_row(schema, row);
     dealloc_schema(schema);
@@ -49,8 +50,9 @@ void test_pack_unpack_row(void) {
     DbSchema* schema = alloc_schema(defs, 3);
 
     char* var_data = "Variable Length Data";
-    int var_len = strlen(var_data) + 1;
-    DbRow* rowIn = create_row(schema, &(int64_t){123456789}, "Fixed", var_data, var_len);
+    uint64_t var_len = strlen(var_data) + 1;
+    int64_t val1 = 123456789;
+    DbRow* rowIn = create_row(schema, &val1, "Fixed", var_data, var_len);
 
     // Calculate buffer size
     size_t buffer_size = row_packed_size(schema, rowIn);
@@ -61,10 +63,10 @@ void test_pack_unpack_row(void) {
     DbRow* rowOut = malloc_row(schema);
     unpack_row(schema, buffer, rowOut);
 
-    TEST_ASSERT_EQUAL_INT64(123456789, rowOut->values[0].value.i);
+    TEST_ASSERT_EQUAL_INT64(val1, rowOut->values[0].value.i);
     TEST_ASSERT_EQUAL_STRING("Fixed", rowOut->values[1].value.fixed_string);
     TEST_ASSERT_EQUAL_STRING(var_data, rowOut->values[2].value.var.data);
-    TEST_ASSERT_EQUAL_INT(var_len, rowOut->values[2].value.var.bytes);
+    TEST_ASSERT_EQUAL_UINT64(var_len, rowOut->values[2].value.var.bytes);
 
     dealloc_row(schema, rowIn);
     dealloc_row(schema, rowOut);
@@ -81,7 +83,7 @@ void test_row_contains(void) {
     DbSchema* schema = alloc_schema(defs, 3);
 
     char* var_data = "Hello World";
-    int var_len = strlen(var_data) + 1;
+    uint64_t var_len = strlen(var_data) + 1;
     int64_t pk_val = 42;
     DbRow* row = create_row(schema, &pk_val, "FixedData", var_data, var_len);
 
@@ -97,7 +99,7 @@ void test_row_contains(void) {
     TEST_ASSERT_TRUE(row_contains(schema, row, cond2, 2));
 
     // Test 3: Match variable length column
-    MatchCondition cond3 = {"var", var_data, var_len};
+    MatchCondition cond3 = {"var", var_data, (size_t)var_len};
     TEST_ASSERT_TRUE(row_contains(schema, row, &cond3, 1));
 
     // Test 4: Mismatch on value
@@ -106,7 +108,7 @@ void test_row_contains(void) {
     TEST_ASSERT_FALSE(row_contains(schema, row, &cond4, 1));
 
     // Test 5: Mismatch on size
-    MatchCondition cond5 = {"var", var_data, var_len - 1};
+    MatchCondition cond5 = {"var", var_data, (size_t)var_len - 1};
     TEST_ASSERT_FALSE(row_contains(schema, row, &cond5, 1));
 
     // Test 6: Non-existent column
@@ -124,7 +126,7 @@ void test_variable_limit_unlimited(void) {
     DbSchema* schema = alloc_schema(defs, 1);
 
     char* data = "This is a very long string that should be allowed since limit is -1";
-    DbRow* row = create_row(schema, data, (int)strlen(data) + 1);
+    DbRow* row = create_row(schema, data, (uint64_t)strlen(data) + 1);
     TEST_ASSERT_NOT_NULL(row);
     TEST_ASSERT_EQUAL_STRING(data, row->values[0].value.var.data);
 
@@ -139,7 +141,7 @@ void test_variable_limit_enforced(void) {
     DbSchema* schema = alloc_schema(defs, 1);
 
     char* data = "Short";
-    DbRow* row = create_row(schema, data, (int)strlen(data) + 1);
+    DbRow* row = create_row(schema, data, (uint64_t)strlen(data) + 1);
     TEST_ASSERT_NOT_NULL(row);
     TEST_ASSERT_EQUAL_STRING(data, row->values[0].value.var.data);
 

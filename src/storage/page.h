@@ -30,7 +30,7 @@ typedef struct DbPage DbPage;
  * @param id The ID of the page.
  * @return DbPage* A pointer to the newly created page.
  */
-DbPage* create_page(int id);
+DbPage* create_page(uint64_t id);
 
 /**
  * @brief Destroys a database page and deallocates its memory.

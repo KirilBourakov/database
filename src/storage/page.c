@@ -11,7 +11,7 @@ struct DbPage {
     char data[PAGE_SIZE];
 };
 
-DbPage* create_page(const int id) {
+DbPage* create_page(const uint64_t id) {
     DbPage* page = calloc(1, sizeof(DbPage));
     PageHeader* header = (PageHeader*)page->data;
 

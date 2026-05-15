@@ -4,6 +4,12 @@
 
 #include "disk.h"
 
+void init_db(FILE* fp) {
+    DbPage* system_page = create_page(0);
+    writeback(system_page, fp);
+    destroy_page(&system_page);
+}
+
 int writeback(const DbPage* page, FILE* file) {
     const PageHeader* header = page_get_header(page);
     const uint32_t page_id = header->page_id;
