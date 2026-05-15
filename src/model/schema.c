@@ -87,12 +87,6 @@ DbSchema* create_schema_from_packed(uint8_t* data) {
     return nv;
 }
 
-/**
- * Serialize a provided schema into the format [Col Count][Column Data][Column Names]
- * @param schema The database schema
- * @param size_out The size of the returned pointer
- * @return The allocated memory, filled with the packed schema
- */
 void* alloc_serialize_schema(const DbSchema* schema, size_t* size_out) {
     size_t size = 0;
     size += sizeof(schema->columns_count);
@@ -136,14 +130,6 @@ void* alloc_serialize_schema(const DbSchema* schema, size_t* size_out) {
 
     *size_out = size;
     return data;
-}
-
-DbSchema* get_table_schema() {
-    const ColumnDef cols[] = {
-        make_column(TYPE_INT64, "first_page", COL_FLAG_NONE),
-        make_column(TYPE_VAR_BLOB, -1, "defn", COL_FLAG_NOT_NULLABLE)
-    };
-    return alloc_schema(cols, sizeof(cols)/sizeof(ColumnDef));
 }
 
 int get_column_index(const DbSchema* schema, const char* name) {

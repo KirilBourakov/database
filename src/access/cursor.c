@@ -15,6 +15,10 @@ struct TableCursor {
     bool end_of_table;
 };
 
+FILE* cursor_get_file(const TableCursor* cursor) {
+    return cursor->file;
+}
+
 TableCursor* start_table_scan(FILE* file, const int page_id) {
     TableCursor* cursor = malloc(sizeof(TableCursor));
     cursor->file = file;
@@ -38,38 +42,39 @@ void stop_table_scan(TableCursor** cursor_ptr) {
     }
 }
 
-int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_row) {
+bool cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_row) {
     if (cursor->end_of_table) {
-        return 0;
+        return false;
     }
 
-    PageHeader* header = page_get_header(cursor->current_page);
-    while (1) {
-        if (cursor->current_slot >= header->num_slots) {
-            bool read_success = false;
-            if (header->next_page_id != INVALID_PAGE_ID) {
-                fseek(cursor->file, header->next_page_id*PAGE_SIZE, SEEK_SET);
-                if (fread(page_get_raw_data(cursor->current_page), 1, PAGE_SIZE, cursor->file) == PAGE_SIZE) {
-                    cursor->current_slot = 0;
-                    header = page_get_header(cursor->current_page);
-                    read_success = true;
-                }
-            }
+    while (true) {
+        PageHeader* header = page_get_header(cursor->current_page);
+        
+        if (cursor->current_slot < header->num_slots) {
+            const void* raw_row_memory = slot_data(cursor->current_page, cursor->current_slot);
+            cursor->current_slot++;
 
-            if (!read_success) {
-                cursor->end_of_table = true;
-                return 0;
+            if (raw_row_memory != NULL) {
+                unpack_row(schema, raw_row_memory, out_row);
+                return true;
             }
+            // If raw_row_memory is NULL, it's a deleted slot; continue to next slot
+            continue;
         }
 
-        const void* raw_row_memory = slot_data(cursor->current_page, cursor->current_slot);
-        cursor->current_slot++;
-
-        // If raw_row_memory is NULL, it means this specific slot was deleted.
-        if (raw_row_memory != NULL) {
-            unpack_row(schema, raw_row_memory, out_row);
-            return 1;
+        // Current page exhausted, try moving to the next page
+        if (header->next_page_id == INVALID_PAGE_ID) {
+            cursor->end_of_table = true;
+            return false;
         }
+
+        fseek(cursor->file, (long)header->next_page_id * PAGE_SIZE, SEEK_SET);
+        if (fread(page_get_raw_data(cursor->current_page), 1, PAGE_SIZE, cursor->file) != PAGE_SIZE) {
+            cursor->end_of_table = true;
+            return false;
+        }
+        
+        cursor->current_slot = 0;
     }
 }
 

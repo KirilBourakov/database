@@ -18,7 +18,7 @@ typedef struct {
         char* fixed_string;
         struct {
             char* data;
-            size_t bytes;
+            uint64_t bytes;
         } var;
     } value;
 } DbValue;
@@ -38,6 +38,9 @@ typedef struct {
  * 
  * @param schema The schema defining the row structure.
  * @param ... Variadic arguments for the row values.
+ *  All Variadic arguments should be pointers.
+ *  For fixed length data, a pointer to the data should be provided.
+ *  Two arguments are needed for variable length data. First, a pointer to the buffer and then the buffer size (uint64_t).
  * @return DbRow* A pointer to the newly created row.
  */
 DbRow* create_row(const DbSchema* schema, ...);

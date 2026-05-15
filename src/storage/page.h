@@ -9,6 +9,7 @@
 #define PAGE_SLOT_SIZE sizeof(uint16_t)
 
 #include <stdint.h>
+#include <stdio.h>
 
 #define INVALID_PAGE_ID ((uint32_t)-1)
 

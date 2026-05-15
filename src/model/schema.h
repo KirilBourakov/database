@@ -75,14 +75,28 @@ typedef struct {
  */
 DbSchema* alloc_schema(const ColumnDef* columns, size_t count);
 
-DbSchema* get_table_schema();
-
 /**
  * @brief Deallocates memory used by a DbSchema.
  * 
  * @param schema The schema to deallocate.
  */
 void dealloc_schema(DbSchema* schema);
+
+
+/**
+ * Serialize a provided schema into the format [Col Count][Column Data][Column Names]
+ * @param schema The database schema
+ * @param size_out The size of the returned pointer
+ * @return The allocated memory, filled with the packed schema
+ */
+void* alloc_serialize_schema(const DbSchema* schema, size_t* size_out);
+
+/**
+ * Create a DB schema from collapsed size;
+ * @param data The serialized schema (format [Col Count][Column Data][Column Names])
+ * @return A DbSchema from data
+ */
+DbSchema* create_schema_from_packed(uint8_t* data);
 
 /**
  * @brief Retrieves the index of a column by its name.

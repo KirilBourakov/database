@@ -11,10 +11,13 @@
 
 typedef struct TableCursor TableCursor;
 
+FILE* cursor_get_file(const TableCursor* cursor);
+
 /**
  * @brief Starts a full table scan on the provided file.
  * 
  * @param file The file containing the table data.
+ * @param page_id Root page id for the schema.
  * @return TableCursor* A pointer to the newly created cursor.
  */
 TableCursor* start_table_scan(FILE* file, int page_id);
@@ -34,7 +37,7 @@ void stop_table_scan(TableCursor** cursor_ptr);
  * @param out_row The row structure to populate with the next row's data.
  * @return int 0 on success, non-zero on failure or end of table.
  */
-int cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_row);
+bool cursor_next(TableCursor* cursor, const DbSchema* schema, const DbRow* out_row);
 
 /**
  * @brief Inserts a new row into the table at the cursor's current position.

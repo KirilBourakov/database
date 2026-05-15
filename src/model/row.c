@@ -30,7 +30,7 @@ DbRow* create_row(const DbSchema* schema, ...) {
                 memcpy(row->values[i].value.fixed_string, incoming_data, schema->columns[i].bytes);
                 break;
             case VARIABLE_POINTER: {
-                const int bytes = va_arg(args, int);
+                const uint64_t bytes = va_arg(args, uint64_t);
                 if (schema->columns[i].bytes != -1 && bytes > schema->columns[i].bytes) {
                     DIE("Variable column data exceeds schema limit");
                 }

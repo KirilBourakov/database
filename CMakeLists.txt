@@ -15,6 +15,7 @@ add_library(db_lib STATIC
 
         src/access/cursor.c
         src/access/system_access.c
+        src/access/file_info.c
 )
 
 # Main executable

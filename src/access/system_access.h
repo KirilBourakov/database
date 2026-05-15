@@ -8,6 +8,28 @@
 
 typedef struct SystemAccessor SystemAccessor;
 
-int insert_new_table(const SystemAccessor* sys_access, const DbSchema* schema);
+/**
+ * Inserts a new table schema into the database.
+ * @param sys_access SystemAccessor object.
+ * @param schema Pointer to the new schema.
+ * @return The page number of the root page for the new schema
+ */
+uint64_t insert_new_schema(const SystemAccessor* sys_access, const DbSchema* schema);
+
+/*
+ * Fetch next schema in the database
+ */
+DbSchema* get_next_schema(const SystemAccessor* sys_access, uint64_t* schema_root);
+
+SystemAccessor* alloc_system_access(FILE* file);
+void dealloc_system_access(SystemAccessor** access);
+
+#endif //SYSTEM_ACCESS_H
+ * Fetch next schema in the database
+ */
+DbSchema* get_next_schema(const SystemAccessor* sys_access, uint64_t* schema_root);
+
+SystemAccessor* alloc_system_access(FILE* file);
+void dealloc_system_access(SystemAccessor** access);
 
 #endif //SYSTEM_ACCESS_H
